@@ -164,6 +164,11 @@ class Select extends React.Component<ISelectProps, ISelectState> {
 
     private searchTextChanged = (e: any) => {
         let filteredOptions = this.props.options;
+
+        if (!Array.isArray(filteredOptions)) {
+            filteredOptions = Object.entries(filteredOptions).map(([key, val]) => ({value: key, label: val}));
+        }
+
         if (this.state.searchedTxt != "") {
             filteredOptions = filteredOptions.filter(
                 (el) => el.label.toLowerCase().indexOf(this.state.searchedTxt.toLowerCase()) !== -1,
@@ -180,8 +185,13 @@ class Select extends React.Component<ISelectProps, ISelectState> {
     public render() {
         const props = this.props;
         let options = props.options;
+        let showedOptions = this.state.filteredOptions;
         if (!Array.isArray(props.options)) {
             options = Object.entries(props.options).map(([key, val]) => ({value: key, label: val}));
+        }
+
+        if (!Array.isArray(showedOptions)) {
+            showedOptions = Object.entries(showedOptions).map(([key, val]) => ({value: key, label: val}));
         }
 
         let selectedIndex: number = -1;
@@ -191,6 +201,9 @@ class Select extends React.Component<ISelectProps, ISelectState> {
                 selectedIndex = i;
             }
         }
+
+        !this.props.emptyValueBlock &&
+            showedOptions.unshift({value: null, label : "--Brak--"});
 
         if (!props.editable) {
             return (
@@ -245,7 +258,7 @@ class Select extends React.Component<ISelectProps, ISelectState> {
                                         value={this.state.searchedTxt}
                                     />
                                 )}
-                                {this.state.filteredOptions.map((el, index) => (
+                                {showedOptions.map((el, index) => (
                                     <div
                                         key={el.value}
                                         className={
@@ -356,9 +369,9 @@ class Text extends React.Component<ITextProps, any> {
                 {props.charLimit &&
                     <div>
                         <span style={{
-                            color: props.charLimit - props.value.length == 0 && "red",
+                            color: props.value && props.charLimit - props.value.length == 0 && "red",
                             fontSize: "0.9em",
-                        }}>Pozostało znaków: <span>{props.charLimit - props.value.length}</span></span>
+                        }}>Pozostało znaków: <span>{props.value && props.charLimit - props.value.length}</span></span>
                     </div>
                 }
             </div>

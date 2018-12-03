@@ -236,7 +236,7 @@ class FileList extends React.Component<IFileList, any> {
     }
 
     public isImage(path) {
-        return path.match(/.(jpg|jpeg|png|gif)$/i);
+        return path.match(/.(jpg|jpeg|png|gif|mp4)$/i);
     }
 
     public handleViewRequest = (index) => {
@@ -369,7 +369,7 @@ class FileList extends React.Component<IFileList, any> {
                                     label: "Otwórz w nowym oknie",
                                     icon: "OpenInNewWindow",
                                     onClick: () => {
-                                        window.open(parsePath(this.props.downloadConnector(preview)));
+                                        window.open(this.props.downloadConnector(preview));
                                     },
                                 },
                             ]}
@@ -378,7 +378,7 @@ class FileList extends React.Component<IFileList, any> {
                             <input
                                 className={"form-control"}
                                 type="text"
-                                value={parsePath(this.props.downloadConnector(preview))}
+                                value={this.props.downloadConnector(preview)}
                                 ref={(el) => (this.clipurl = el)}
                             />
                         </div>
