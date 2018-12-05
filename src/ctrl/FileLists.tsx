@@ -12,6 +12,7 @@ import { printFile } from "../utils/FilePrinter";
 import {LoadingIndicator} from "./LoadingIndicator";
 import {ImageViewer} from "./files/viewers/ImageViewer";
 import {PDFViewer} from "./files/viewers/PDFViewer";
+import DateTimeFormat = Intl.DateTimeFormat;
 
 let baseUrl = "";
 if (window.location.host.indexOf("esotiq") != -1) {
@@ -35,6 +36,8 @@ export interface IFile {
     uploaded: boolean;
     nativeObj?: File;
     path: string;
+    dateFrom: string;
+    dateTo: string;
 }
 
 const DragHandle = SortableHandle(() => (
@@ -71,6 +74,7 @@ const ImageBox = SortableElement((props) => {
         reader.readAsDataURL(file.nativeObj);*/
     }
 
+    console.log(file);
     return (
         <div style={style}>
             <div onClick={() => props.onClick(props._index)} className={"w-image-box"}>
@@ -92,6 +96,13 @@ const ImageBox = SortableElement((props) => {
                     </div>
                 </span>
                 <div className="w-gallery-name">{file.name}</div>
+                {"data" in file &&
+                    JSON.parse(file.data).startTime != "rejected" &&
+                    <div>
+                        <div style={{fontSize: 9}}>{`Od: ${JSON.parse(file.data).startTime}`}</div>
+                        <div style={{fontSize: 9}}>{`Do: ${JSON.parse(file.data).endTime}`}</div>
+                    </div>
+                }
             </div>
         </div>
     );
@@ -136,7 +147,7 @@ class FileList extends React.Component<IFileList, any> {
     public static defaultProps: Partial<IFileList> = {
         type: "filelist",
         maxLength: null,
-        buttonTitle: __("Dodaj"),
+        buttonTitle: __("Dodaj plik"),
         itemStyle: {},
         downloadConnector: (file: IFile) => file.path,
     };
@@ -149,6 +160,7 @@ class FileList extends React.Component<IFileList, any> {
             preview: null,
             numPages: null,
             viewers: {},
+            disabled: true,
         };
 
         this.viewerRegistry = [
@@ -164,6 +176,11 @@ class FileList extends React.Component<IFileList, any> {
     }
 
     public handleFileAdd(addedFiles: Array<File & { preview: string }>) {
+        console.log("from there");
+        if (!this.state.dateTimeFields) {
+            this.showDatetimeFields();
+        }
+
         const currFiles = this.props.value ? this.props.value.slice() : [];
         for (let i = 0; i < addedFiles.length; i++) {
             if (this.props.maxLength && i >= this.props.maxLength) {
@@ -180,6 +197,8 @@ class FileList extends React.Component<IFileList, any> {
                 name: el.name,
                 title: el.name,
                 description: "",
+                dateFrom: this.state.dateFrom,
+                dateTo:this.state.dateTo,
                 path: el.preview,
                 type: "image",
                 uploaded: false,
@@ -190,6 +209,16 @@ class FileList extends React.Component<IFileList, any> {
         }
 
         this.handleChange(currFiles);
+    }
+
+    public showDatetimeFields = () => {
+        this.setState({
+            dateTimeFields: true,
+        });
+    };
+
+    public prepareFileDatetime(data: object) {
+        return true;
     }
 
     public handleFileClick(index) {
@@ -213,6 +242,7 @@ class FileList extends React.Component<IFileList, any> {
     }
 
     public handleChange(currFiles) {
+        console.log(this.props.onChange, "onChange");
         if (this.props.onChange) {
             this.props.onChange({
                 name: this.props.name,
@@ -243,7 +273,7 @@ class FileList extends React.Component<IFileList, any> {
         const el = this.props.value[index];
         el.path = parsePath(this.props.downloadConnector(el));
 
-        console.log(el);
+        console.log(el, "here");
 
         let viewer = null;
         for (const element of this.viewerRegistry) {
@@ -263,6 +293,29 @@ class FileList extends React.Component<IFileList, any> {
         return;
     };
 
+    public dateTimeValidate = (value) => {
+        if (value) {
+            const regexDate = /^\d{4}-\d{1,2}-\d{1,2}$/;
+            const regexTime = /^\d{1,2}:\d{1,2}:\d{2}([ap]m)?$/;
+            const date = value.split(" ")[0];
+            const time = value.split(" ")[1];
+
+            if (date != "" && !date.match(regexDate)) {
+                alert("Niepoprawny format daty: " + value + ". Poprawny format to: 2018-01-01 12:00:00");
+                return false;
+            }
+
+            if (time != "" && !time.match(regexTime)) {
+                alert("Niepoprawny format czasu: " + value + ". Poprawny format to: 2018-01-01 12:00:00");
+                return false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     public render() {
         const { value, type, maxLength, downloadConnector } = this.props;
         const { preview } = this.state;
@@ -271,7 +324,77 @@ class FileList extends React.Component<IFileList, any> {
 
         return (
             <div className="w-file-list">
-                {(!maxLength || (value && value.length < maxLength) || !value) && (
+                {!this.state.dateTimeFields &&
+                <div>
+                    <a
+                        className={"btn btn-primary"}
+                        onClick={() => this.showDatetimeFields()}
+                    >
+                        <Icon name={"Add"} /> {this.props.buttonTitle}{" "}
+                    </a>
+                </div>
+                }
+
+
+                {(this.state.dateTimeFields && (this.state.dateFrom != "rejected" && this.state.dateTo != "rejected") && !this.state.dateTimeValidated) &&
+                <div>
+                    <div style={{display: "flex"}}>
+                        <label>Dostępność w czasie</label>
+                        <span style={{marginTop: 5, fontSize: 9, marginLeft: 5, color: "#484848"}}>Uzupełnij datę i czas przed dodatniem pliku.</span>
+                    </div>
+
+                    <input
+                        name={"dateFrom"}
+                        type={"text"}
+                        value={this.state.dateFrom}
+                        onChange={(e) => {
+                            this.setState({dateFrom: e.target.value});
+                        }}
+                        placeholder={"2018-01-01 12:00:00"}
+                    />
+                    <div style={{marginLeft: 5, marginRight: 5, display: "inline-block"}}>
+                        <Icon size={10} name={"DoubleChevronRight8"}/>
+                    </div>
+                    <input
+                        name={"dateTo"}
+                        type={"text"}
+                        value={this.state.dateTo}
+                        onChange={(e) => {
+                            this.setState({dateTo: e.target.value});
+                        }}
+                        placeholder={"2018-01-01 12:00:00"}
+                    />
+                    <div>
+                        <a
+                            className={"btn btn-primary"}
+                            onClick={() => this.setState({dateFrom: "rejected", dateTo: "rejected"})}
+                            style={{marginTop: 5}}
+                        >
+                            <Icon name={"Add"} />
+                            Pomiń
+                        </a>
+
+                        <a
+                            className={"btn btn-primary"}
+                            onClick={() => {
+                                const dateFromValidate = this.dateTimeValidate(this.state.dateFrom);
+                                const dateToValidate = this.dateTimeValidate(this.state.dateTo);
+
+                                if (dateFromValidate && dateToValidate) {
+                                    this.setState({dateTimeValidated: true});
+                                }
+                            }}
+                            style={{marginTop: 5}}
+                        >
+                            <Icon name={"Add"} />
+                            Dalej
+                        </a>
+                    </div>
+                </div>
+                }
+
+                {(this.state.dateTimeValidated || this.state.dateFrom == "rejected") &&
+                    (!maxLength || (value && value.length < maxLength) || !value) && (
                     <Dropzone
                         className="dropzone"
                         activeClassName="w-gallery-add-active"
@@ -331,7 +454,9 @@ class FileList extends React.Component<IFileList, any> {
                                 itemStyle={this.props.itemStyle}
                             />
                         )}
+
                 </div>
+
                 {/*<pre>
                     {JSON.stringify(preview, null, 2)}
                 </pre>*/}
