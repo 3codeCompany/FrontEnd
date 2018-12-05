@@ -74,7 +74,6 @@ const ImageBox = SortableElement((props) => {
         reader.readAsDataURL(file.nativeObj);*/
     }
 
-    console.log(file);
     return (
         <div style={style}>
             <div onClick={() => props.onClick(props._index)} className={"w-image-box"}>
@@ -176,7 +175,6 @@ class FileList extends React.Component<IFileList, any> {
     }
 
     public handleFileAdd(addedFiles: Array<File & { preview: string }>) {
-        console.log("from there");
         if (!this.state.dateTimeFields) {
             this.showDatetimeFields();
         }
@@ -242,7 +240,6 @@ class FileList extends React.Component<IFileList, any> {
     }
 
     public handleChange(currFiles) {
-        console.log(this.props.onChange, "onChange");
         if (this.props.onChange) {
             this.props.onChange({
                 name: this.props.name,
@@ -273,8 +270,6 @@ class FileList extends React.Component<IFileList, any> {
         const el = this.props.value[index];
         el.path = parsePath(this.props.downloadConnector(el));
 
-        console.log(el, "here");
-
         let viewer = null;
         for (const element of this.viewerRegistry) {
             if ((el.name && el.name.match(element.filter)) || el.path.match(element.filter)) {
@@ -293,7 +288,7 @@ class FileList extends React.Component<IFileList, any> {
         return;
     };
 
-    public dateTimeValidate = (value) => {
+    public dateTimeValidate = (value: string) => {
         if (value) {
             const regexDate = /^\d{4}-\d{1,2}-\d{1,2}$/;
             const regexTime = /^\d{1,2}:\d{1,2}:\d{2}([ap]m)?$/;
@@ -319,7 +314,6 @@ class FileList extends React.Component<IFileList, any> {
     public render() {
         const { value, type, maxLength, downloadConnector } = this.props;
         const { preview } = this.state;
-        const deleted = this.state.filesDeleted;
         const ViewerComponent = this.state.viewer;
 
         return (
