@@ -74,6 +74,7 @@ const ImageBox = SortableElement((props) => {
         reader.readAsDataURL(file.nativeObj);*/
     }
 
+    console.log(file);
     return (
         <div style={style}>
             <div onClick={() => props.onClick(props._index)} className={"w-image-box"}>
@@ -96,11 +97,12 @@ const ImageBox = SortableElement((props) => {
                 </span>
                 <div className="w-gallery-name">{file.name}</div>
                 {"data" in file &&
-                    JSON.parse(file.data).startTime != "rejected" &&
-                    <div>
-                        <div style={{fontSize: 9}}>{`Od: ${JSON.parse(file.data).startTime}`}</div>
-                        <div style={{fontSize: 9}}>{`Do: ${JSON.parse(file.data).endTime}`}</div>
-                    </div>
+                    file.data &&
+                        JSON.parse(file.data).startTime != "rejected" &&
+                            <div>
+                                <div style={{fontSize: 9}}>{`Od: ${JSON.parse(file.data).startTime}`}</div>
+                                <div style={{fontSize: 9}}>{`Do: ${JSON.parse(file.data).endTime}`}</div>
+                            </div>
                 }
             </div>
         </div>
