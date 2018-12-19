@@ -8,7 +8,7 @@ const extractor = function(basePath, targetComponentFile, targetSassFile, produc
     let command = "php bin/console debug:router --json";
 
     console.log("Route check ...");
-    exec(command, { cwd: basePath }, function(error, stdout, stderr) {
+    exec(command, {maxBuffer: 1024 * 500, cwd: basePath}, function (error, stdout, stderr) {
         if (!error) {
             try {
                 let route = JSON.parse(stdout);
