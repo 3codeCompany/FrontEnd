@@ -1,0 +1,96 @@
+
+.w-connections-field
+
+    border: solid 1px #e7e7e7
+    padding: 0 5px
+
+    display: flex
+    flex-wrap: wrap
+
+    .w-connections-field-entry
+        display: inline-flex
+        max-width: calc( 100% - 10px )
+        vertical-align: middle
+
+    .w-connections-field-input
+        display: inline-flex
+        flex-grow: 1
+
+        input
+            display: inline-block
+            height: 32px
+            width: 100%
+            border: none
+            outline: none
+            padding: 0 6px 0px
+            margin: 1px
+
+    &.w-connections-field-presenter
+        border: none
+        padding: 0
+        .w-connections-field-input
+            display: none !important
+        .w-connections-field-entry
+            .delete
+                display: none
+
+    &.w-connections-field-presenter.w-connections-field-presenter-empty
+        line-height: 25px
+        height: 25px
+        background-color: #f5f4f4
+        padding-left: 10px
+        border-radius: 2px
+        color: #919191
+        &:before
+            font-family: FabricMDL2Icons
+            content: '\F303'
+            margin-right: 10px
+
+
+
+
+
+//byc moze ten tag wydzielimy jako zewnatrzny komponent dlatego style oddzielnie
+.w-connections-field-entry
+    height: 28px
+    margin: 3px 5px
+    //padding: 3px 10px
+    border-radius: 15px
+    background-color: rgb(244, 244, 244)
+    white-space: nowrap
+    display: inline-flex
+    .prepend, .delete
+        width: 28px
+        height: 28px
+        text-align: center
+        line-height: 28px
+        border-radius: 15px
+    .prepend
+
+        background-color: lightgrey
+        color: white
+
+    .content
+        margin: 0 10px
+        line-height: 28px
+        text-overflow: ellipsis
+        overflow: hidden
+
+    .delete
+        cursor: pointer
+        &:hover
+            background-color: lightgrey
+
+//style dla modala - dlatego odzdzielnie
+.w-connections-field-results
+    .w-loader
+        span
+            margin: 10px auto
+
+//style dla modala - dlatego odzdzielnie
+.w-selection
+    .w-selection-element
+        padding: 3px 10px
+    .w-selection-element-selected
+        background-color: lightgrey
+

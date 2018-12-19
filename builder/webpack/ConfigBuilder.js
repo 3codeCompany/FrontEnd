@@ -1,11 +1,12 @@
 const webpack = require("webpack");
 var { resolve, basename } = require("path");
 const fs = require("fs");
-//const HappyPack = require("happypack");
+const HappyPack = require("happypack");
 const path = require("path");
 
+
 //var ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-// const { CheckerPlugin } = require("awesome-typescript-loader");
+const { CheckerPlugin } = require("awesome-typescript-loader");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const extractor = require("./RouteExtractor.js");
@@ -21,97 +22,10 @@ let configDefaults = {
     PORT: 3000,
     USE_FRAMEWORK_OBSERVERS: true,
     LANGUAGE: "pl",
-    BROWSERS: null,
-    NODE_CACHE_DIR: "node_modules/.cache",
+    BROWSERS: null
 };
 
 module.exports = function(input) {
-    const dllFile = resolve(input.BASE_PATH, "./public/assets/dist/dll-manifest.json");
-
-    const GetLoaders = require("./Loaders.js");
-    if (process.argv.includes("--env.mode=dll") && false) {
-        //if (process.env.mode == "dll") {
-        return {
-            mode: "production",
-            devtool: "cheap-module-eval-source-map",
-            context: resolve(__dirname, ""),
-            resolve: {
-                extensions: [".js", ".json", ".css", ".ts", ".tsx"],
-                modules: [__dirname, "node_modules"],
-            },
-
-            /*entry: {
-                react: ["react", "react-dom"],
-                pdf: ["react-pdf"],
-                dates: ["react-dates"],
-                i18Next: ["react-i18next"],
-                hotKeys: ["react-hot-keys"],
-            },*/
-            /*optimization: {
-                splitChunks: {
-                    // include all types of chunks
-
-                    maxSize: 500000
-
-                },
-
-            },*/
-
-            module: GetLoaders(true, input),
-            entry: {
-                react: [
-                    "react",
-                    "react-dom",
-                    "react-dates",
-                    "react-hot-keys",
-                    "react-pdf",
-                    "amcharts3",
-                    "nprogress",
-                    "i18next",
-                    "react-i18next",
-                    "frontend",
-                ],
-            },
-            output: {
-                filename: `[name]-[hash].dll.js`,
-                path: resolve(input.BASE_PATH, "./public/assets/dist/"),
-                library: "[name]",
-                chunkFilename: `chunk-[name]-[hash].dll.js`,
-                publicPath: input.PUBLIC_PATH,
-            },
-
-            plugins: [
-                new webpack.DllPlugin({
-                    name: "[name]",
-                    path: dllFile,
-                }),
-
-                new MiniCssExtractPlugin({
-                    // Options similar to the same options in webpackOptions.output
-                    // both options are optional
-                    filename: "bundle-[hash].css",
-                    chunkFilename: "[id].[hash].css",
-                }),
-            ],
-            optimization: {
-                minimizer: [
-                    new UglifyJsPlugin({
-                        cache: true,
-                        parallel: true,
-                        sourceMap: false, // set to true if you want JS source maps
-                    }),
-                    new OptimizeCSSAssetsPlugin({
-                        cssProcessorOptions: {
-                            "postcss-safe-parser": true,
-                            discardComments: { removeAll: true },
-                            zindex: false,
-                        },
-                    }),
-                ],
-            },
-        };
-    }
-
     input = Object.assign(configDefaults, input);
 
     if (input.PRODUCTION) {
@@ -121,26 +35,26 @@ module.exports = function(input) {
     }
 
     if (input.BROWSERS == null) {
-        input.BROWSERS = ["last 2 Chrome versions"].concat([]);
+        input.BROWSERS = ["last 2 Chrome versions"].concat( []);
     }
 
     var conf = {
         context: resolve(__dirname, ""),
-        devtool: input.PRODUCTION ? "none" : "cheap-module-eval-source-map", //,
-        // devtool: false,
+        devtool: input.PRODUCTION ? "cheap-module-eval-source-map" : "cheap-module-source-map", //,
 
         resolve: {
             extensions: [".js", ".ts", ".tsx"],
             unsafeCache: true,
-            modules: ["node_modules"],
-        },
+            modules: ["node_modules"]
+        }
     };
 
+    const GetLoaders = require("./Loaders.js");
     conf.module = GetLoaders(input.PRODUCTION, input);
 
     let tmpEntry = {};
     for (let i in input.ENTRY_POINTS) {
-        tmpEntry[i] = ["babel-polyfill", input.ENTRY_POINTS[i]];
+        tmpEntry[i] = [/*'babel-polyfill',*/ input.ENTRY_POINTS[i]];
     }
 
     let tmp;
@@ -164,7 +78,7 @@ module.exports = function(input) {
             input.PORT || 3000,
             input.DOMAIN,
             input.LANGUAGE,
-            webpack,
+            webpack
         );
     } else {
         conf.mode = "production";
@@ -179,7 +93,7 @@ module.exports = function(input) {
             input.BASE_PATH,
             input.LANGUAGE,
             input.ANALYZE,
-            webpack,
+            webpack
         );
     }
 
@@ -187,76 +101,57 @@ module.exports = function(input) {
         conf[i] = tmp[i];
     }
 
-    /*    let threads = HappyPack.ThreadPool({size: 4});
 
-        conf.plugins = conf.plugins.concat([
-            new HappyPack({
-                id: "sass",
-                loaders: [
-                    MiniCssExtractPlugin.loader,
-                    {loader: "css-loader", query: {sourceMap: true}},
-                    {loader: "resolve-url-loader", query: {sourceMap: true}},
-                    //'postcss-loader',
-                    {
-                        loader: "sass-loader",
-                        query: {
-                            sourceMap: true,
-                            includePaths: ["node_modules"],
-                        },
+    let threads = HappyPack.ThreadPool({size: 4});
+
+    conf.plugins = conf.plugins.concat([
+        new HappyPack({
+            id: "sass",
+            loaders: [
+                !input.PRODUCTION ? 'style-loader' : MiniCssExtractPlugin.loader,
+                {loader: "css-loader", query: {sourceMap: true}},
+                {loader: "resolve-url-loader", query: {sourceMap: true}},
+                //'postcss-loader',
+                {
+                    loader: "sass-loader",
+                    query: {
+                        sourceMap: true,
+                        includePaths: ["node_modules"],
                     },
-                ],
+                },
+            ],
 
-                threadPool: threads,
-            }),
-        ]);*/
+            threadPool: threads,
+        }),
+    ]);
+
+
 
     if (false) {
         var HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
         conf.plugins.push(
             new HardSourceWebpackPlugin({
                 // Either an absolute path or relative to webpack's options.context.
-                cacheDirectory: input.NODE_CACHE_DIR + "/hard-source/[confighash]",
+                cacheDirectory: input.BASE_PATH + "/node_modules/.cache/hard-source/[confighash]",
                 // Either an absolute path or relative to webpack's options.context.
                 // Sets webpack's recordsPath if not already set.
-                recordsPath: input.NODE_CACHE_DIR + "/hard-source/[confighash]/records.json",
-
+                recordsPath: input.BASE_PATH + "/node_modules/.cache/hard-source/[confighash]/records.json",
+                configHash: function(webpackConfig) {
+                    // node-object-hash on npm can be used to build this.
+                    return require("node-object-hash")({ sort: false }).hash(webpackConfig) + input.LANGUAGE;
+                },
                 // Either false, a string, an object, or a project hashing function.
                 environmentHash: {
                     root: process.cwd(),
                     directories: [],
-                    files: ["yarn.lock"],
-                },
-            }),
+                    files: ["package-lock.json", "yarn.lock"]
+                }
+            })
         );
     }
 
     conf.plugins.push(new webpack.PrefetchPlugin(input.BASE_PATH + "/build/js/app.tsx"));
     conf.plugins.push(new webpack.PrefetchPlugin(input.BASE_PATH + "/build/js/App.sass"));
-    if (!input.PRODUCTION && false) {
-        conf.plugins.push(
-            new webpack.SourceMapDevToolPlugin({
-                filename: "[file].map",
-                moduleFilenameTemplate: "[resource-path]",
-                fallbackModuleFilenameTemplate: "[resource-path]",
-                append: null,
-                module: true,
-                columns: true,
-                lineToLine: false,
-                noSources: false,
-                namespace: "",
-                exclude: ["node_modules/*.js"],
-            }),
-        );
-    }
-
-    if (false) {
-        conf.plugins.push(
-            new webpack.DllReferencePlugin({
-                context: resolve(__dirname, ""),
-                manifest: dllFile,
-            }),
-        );
-    }
 
     /*   conf.plugins.push(new RuntimeAnalyzerPlugin({
         // Can be `standalone` or `publisher`.
@@ -282,70 +177,66 @@ module.exports = function(input) {
                 // Options similar to the same options in webpackOptions.output
                 // both options are optional
                 filename: "bundle-[hash].css",
-                chunkFilename: "[id].[hash].css",
-            }),
+                chunkFilename: "[id].[hash].css"
+            })
         );
 
         conf.optimization = {
             minimizer: [
                 new UglifyJsPlugin({
-                    cache: input.NODE_CACHE_DIR + "/uglifyjs-webpack-plugin",
+                    cache: true,
                     parallel: true,
-                    sourceMap: true, // set to true if you want JS source maps
+                    sourceMap: true // set to true if you want JS source maps
                 }),
                 new OptimizeCSSAssetsPlugin({
-                    cssProcessorOptions: {
-                        "postcss-safe-parser": true,
-                        discardComments: { removeAll: true },
-                        zindex: false,
-                    },
-                }),
-            ],
+                    cssProcessorOptions: { "postcss-safe-parser": true, discardComments: { removeAll: true }, zindex: false }
+                })
+            ]
             /*splitChunks: {
                 chunks: 'all'
             },*/
         };
-    } else {
+    }else{
         //incremental build optymalization
         conf.optimization = {
             removeAvailableModules: false,
             removeEmptyChunks: false,
             splitChunks: false,
-        };
+        }
         /*conf.output = {
             pathinfo: false
         }*/
     }
 
-    /* conf.plugins.push(function() {
-         this.plugin("done", function(stats) {
-             var stats = stats.toJson();
-             //console.log(stats.warnings);
+    conf.plugins.push(function() {
+        this.plugin("done", function(stats) {
+            var stats = stats.toJson();
+            //console.log(stats.warnings);
 
-             let missingLang = {};
-             if (stats.warnings && stats.warnings.length) {
-                 for (let i in stats.warnings) {
-                     let el = "" + stats.warnings[i];
-                     if (el.indexOf("Missing localization: ") != -1) {
-                         let lines = ("" + el).split("\n");
-                         for (let x = 0; x < lines.length; x++) {
-                             if (lines[x].indexOf("Missing localization: ") == 0) {
-                                 missingLang[lines[x].replace("Missing localization: ", "")] = "";
-                             }
-                         }
-                     }
-                 }
+            let missingLang = {};
+            if (stats.warnings && stats.warnings.length) {
+                for (let i in stats.warnings) {
+                    let el = "" + stats.warnings[i];
+                    if (el.indexOf("Missing localization: ") != -1) {
+                        let lines = ("" + el).split("\n");
+                        for (let x = 0; x < lines.length; x++) {
+                            if (lines[x].indexOf("Missing localization: ") == 0) {
+                                missingLang[lines[x].replace("Missing localization: ", "")] = "";
+                            }
+                        }
+                    }
+                }
 
-                 fs.writeFile(
-                     resolve(input.BASE_PATH, `./build/js/tmp/missing-${input.LANGUAGE}-lang.json`),
-                     JSON.stringify(missingLang, null, 2),
-                     function() {}
-                 );
-             }
+                fs.writeFile(
+                    resolve(input.BASE_PATH, `./build/js/tmp/missing-${input.LANGUAGE}-lang.json`),
+                    JSON.stringify(missingLang, null, 2),
+                    function() {}
+                );
+            }
 
-             return true;
-         });
-     });*/
+            return true;
+        });
+    });
 
     return conf;
 };

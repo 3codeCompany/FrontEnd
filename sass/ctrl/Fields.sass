@@ -1,4 +1,17 @@
+.DateInput
+    padding: 0 !important
+    font-size: 16px
+    line-height: 18px
 
+.DateInput__display-text--focused
+    border-radius: 0px !important
+
+.SingleDatePicker__picker
+    top: 33px
+    z-index: 200
+
+.DateInput--with-caret::before, .DateInput--with-caret::after
+    display: none
 
 .w-field-presentation, .w-field-presentation-select, .w-field-presentation-switch, .w-field-presentation-textarea
     line-height: 25px
@@ -26,7 +39,29 @@
 
 
 
+.w-switch
+    > div
+        display: inline-block
+        input
+            display: none
 
+        &:first-child
+            .w-switch-label
+                border-radius: 5px 0 0 5px
+
+        &:last-child
+            .w-switch-label
+                border-radius: 0 5px 5px 0
+
+        .w-switch-label
+            cursor: pointer
+            height: 28px
+            padding: 4px 8px
+            background-color: #f3f3f3
+            color: rgb(140, 140, 140)
+            &.w-switch-active
+                background-color: #108EE9
+                color: white
 
 .w-file-upload
     .w-file-dropzone
@@ -120,5 +155,91 @@ input.form-control, select.form-control
 .form-horizontal .control-label
     padding-top: 3px
 
+.selectivity-single-select
+    height: 28px
+    background-color: white
+    border: 1px solid #cbd5dd
+    line-height: 26px
+    padding: 0
+    border-radius: 0
+    .selectivity-single-select-input
+        padding: 0
+        border: 0
+        margin-top: -4px
+    .selectivity-single-result-container
+        top: 0
+        margin: 0
+        bottom: 0
+    .selectivity-caret
+        top: 3px
+        font-family: "FabricMDL2Icons"
+        &::before
+            content: '\E972'
 
 
+
+    .selectivity-single-selected-item-remove
+        i
+            font-style: normal
+            font-size: 10px
+            color: black
+            &:before
+                font-family: FabricMDL2Icons
+                content: "\E8BB"
+
+
+
+
+
+
+
+
+.selectivity-dropdown
+    border-radius: 0
+    position: absolute
+
+
+
+
+.w-select
+    .w-select-result-presenter
+        min-height: 28px
+        background-color: white
+        border: 1px solid #cbd5dd
+        line-height: 26px
+        padding-left: 8px
+        color: black
+        cursor: pointer
+        .w-select-placeholder
+            color: grey
+            display: inline-block
+        i
+            float: right
+            margin-right: 10px
+
+.w-select-overlay
+    background-color: white
+    border: 1px solid #cbd5dd
+    outline: none
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3)
+
+    position: absolute
+    z-index: 10000
+
+    max-height: 400px
+    overflow: auto
+    .w-select-item
+        padding: 4px
+        cursor: pointer
+        &:hover, .w-select-selected
+            background-color: #4484c7
+            color: white
+    .w-select-selected
+        background-color: #4484c7
+        color: white
+
+    input
+        width: 100%
+        line-height: 34px !important
+        height: 34px !important
+        border-top: 0

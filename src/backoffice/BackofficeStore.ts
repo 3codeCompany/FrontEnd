@@ -1,39 +1,19 @@
-// @ts-ignore
+import Comm from "../lib/Comm";
+import Router from "frontend/src/backoffice/Router";
 import * as qs from "qs";
-import { Comm, CommEvents } from "../lib";
-import { IRouteElement, router } from "./Router";
+import BackOfficePanel from "./BackOfficePanel";
+import {hot} from "react-hot-loader";
 
-declare var window: any;
-declare var module: any;
-
-export interface IDebugDataEntry {
-    route: string;
-    props: any[];
-    urls: any[];
-    instances: number;
-    routeInfo: IRouteElement;
-}
-
-export type DebugDataListener = (
-    data: {
-        views: IDebugDataEntry[];
-        ajax: IDebugDataEntry[];
-    },
-) => any;
+declare var window;
+declare var module;
 
 const browserInput = window.reactBackOfficeVar;
 
-class BackofficeStore {
-    public static debugData: {
-        views: IDebugDataEntry[];
-        ajax: IDebugDataEntry[];
-    } = {
-        views: [],
-        ajax: [],
-    };
-    public static debugDataListeners: DebugDataListener[] = [];
+export class BackofficeStore {
+    public static debugData: { views: Frontend.Debug.DebugDataEntry[]; ajax: Frontend.Debug.DebugDataEntry[] } = {views: [], ajax: []};
+    public static debugDataListeners: Frontend.Debug.DebugDataListener[] = [];
     public static debugViewAjaxInProgress = true;
-    public static registerDebugDataListener = (listener: DebugDataListener) => {
+    public static registerDebugDataListener = (listener: Frontend.Debug.DebugDataListener) => {
         BackofficeStore.debugDataListeners.push(listener);
     };
 
@@ -43,11 +23,12 @@ class BackofficeStore {
         }
     }
 
-    public static registerDebugData(type: "views" | "ajax", url: string, routeElement: IRouteElement, props: any) {
+    public static registerDebugData(type: string, url: string, routeInfo: Frontend.Debug.RouteInfo, props) {
+
         if (type == "ajax") {
-            for (let index = 0; index < BackofficeStore.debugData.ajax.length; index++) {
+            for (const index in BackofficeStore.debugData.ajax) {
                 const entry = BackofficeStore.debugData.ajax[index];
-                if (entry.route == routeElement._routePath) {
+                if (entry.route == routeInfo._routePath) {
                     BackofficeStore.debugData.ajax.splice(index, 1);
                 }
             }
@@ -55,8 +36,8 @@ class BackofficeStore {
             BackofficeStore.debugData[type].push({
                 urls: [url],
                 props: [props],
-                route: routeElement._routePath,
-                routeInfo: routeElement,
+                route: routeInfo._routePath,
+                routeInfo,
                 instances: 1,
             });
             if (BackofficeStore.debugData[type].length > 10) {
@@ -65,7 +46,7 @@ class BackofficeStore {
         } else {
             let exists = false;
             for (const entry of BackofficeStore.debugData[type]) {
-                if (entry.route == routeElement._routePath) {
+                if (entry.route == routeInfo._routePath) {
                     exists = true;
                     entry.urls.push(url);
                     entry.props.push(props);
@@ -76,8 +57,8 @@ class BackofficeStore {
                 BackofficeStore.debugData[type].push({
                     urls: [url],
                     props: [props],
-                    route: routeElement._routePath,
-                    routeInfo: routeElement,
+                    route: routeInfo._routePath,
+                    routeInfo,
                     instances: 1,
                 });
             }
@@ -86,14 +67,14 @@ class BackofficeStore {
         BackofficeStore.debugDataChanged();
     }
 
-    public static unregisterDebugData(url: string) {
-        for (let index = 0; index < BackofficeStore.debugData.views.length; index++) {
+    public static unregisterDebugData(url, props) {
+        for (const index in BackofficeStore.debugData.views) {
             const entry = BackofficeStore.debugData.views[index];
             for (let i = entry.urls.length - 1; i >= 0; i--) {
                 if (entry.urls[i] == url) {
                     entry.instances--;
                     if (entry.instances == 0) {
-                        BackofficeStore.debugData.views.splice(index as number, 1);
+                        BackofficeStore.debugData.views.splice(index, 1);
                         break;
                     }
 
@@ -115,13 +96,13 @@ class BackofficeStore {
     public isViewLoading = true;
     public isPackageCompiling = false;
 
-    public viewServerErrors: any = null;
+    public viewServerErrors = null;
     public view: any = null;
     public viewData: any = {};
     public externalViewData: any = {};
 
-    private onViewLoadArr: Array<() => any> = [];
-    private onViewLoadedArr: Array<() => any> = [];
+    private onViewLoadArr = [];
+    private onViewLoadedArr = [];
 
     public initRootElement() {
         if (window.location.hash != "#" && window.location.hash) {
@@ -139,17 +120,15 @@ class BackofficeStore {
 
         Comm.onStart.push((url, data, method) => {
             if (!BackofficeStore.debugViewAjaxInProgress) {
-                const routeData = router.getRouteInfo(url);
+                const routeData = Router.getRouteInfo(url);
                 if (routeData !== null) {
-                    router.getRouteInfo(url).then((result) => {
-                        BackofficeStore.registerDebugData("ajax", url, result, data);
-                    });
+                    BackofficeStore.registerDebugData("ajax", url, Router.getRouteInfo(url), data);
                 }
             }
         });
 
         if (module.hot) {
-            module.hot.addStatusHandler((status: string) => {
+            module.hot.addStatusHandler((status) => {
                 if (status == "check") {
                     this.isPackageCompiling = true;
                     this.dataUpdated();
@@ -173,7 +152,7 @@ class BackofficeStore {
         };
     }
 
-    public onDataUpdated(cb: () => any) {
+    public onDataUpdated(cb) {
         this.dataUpdateCb = cb;
     }
 
@@ -190,7 +169,7 @@ class BackofficeStore {
     };
 
     private currentPath = "";
-    public changeView = (path: string, input: any = null, callback: () => any = null) => {
+    public changeView = (path: string, input = null, callback: () => any = null) => {
         const originalPath = path;
 
         try {
@@ -216,18 +195,19 @@ class BackofficeStore {
             let view: any;
             // check path contains query string
             if (path.indexOf("?") == -1) {
-                view = router.resolve(path);
+                view = Router.resolve(path);
                 const query = qs.stringify(input);
                 url = path + (query ? "?" + query : "");
             } else {
                 const [purePath, pathQueryString] = path.split("?");
-                view = router.resolve(purePath);
+                view = Router.resolve(purePath);
                 const partOfInput = qs.parse(pathQueryString);
                 const query = qs.stringify(Object.assign({}, partOfInput, input));
                 url = purePath + (query ? "?" + query : "");
             }
 
-            view.then((resolvedView: any) => {
+            view.then((view) => {
+
                 if (!this.subStore) {
                     window.removeEventListener("hashchange", this.hashChangeHandler);
                     window.location.hash = url;
@@ -236,14 +216,14 @@ class BackofficeStore {
 
                 const comm = new Comm(url);
 
-                comm.setData({ __PROPS_REQUEST__: 1 });
-                comm.on(CommEvents.ERROR, (errorResponse) => {
+                comm.setData({__PROPS_REQUEST__: 1});
+                comm.on(Comm.EVENTS.ERROR, (errorResponse) => {
                     this.viewServerErrors = errorResponse;
                     for (const el of this.onViewLoadedArr) {
                         el();
                     }
                 });
-                comm.on(CommEvents.SUCCESS, (data) => {
+                comm.on(Comm.EVENTS.SUCCESS, (data) => {
                     if (data.__arrowException !== undefined) {
                         this.viewServerErrors = data;
                         this.isViewLoading = false;
@@ -251,7 +231,7 @@ class BackofficeStore {
                     }
 
                     this.viewData = Object.assign({}, data, this.externalViewData);
-                    this.view = resolvedView;
+                    this.view = view;
 
                     for (const el of this.onViewLoadedArr) {
                         el();
@@ -262,15 +242,16 @@ class BackofficeStore {
 
                     if (originalPath) {
                         try {
-                            router.getRouteInfo(originalPath).then((routeData: IRouteElement) => {
+                            Router.getRouteInfo(originalPath).then((routeData: Frontend.Debug.RouteInfo) => {
                                 BackofficeStore.registerDebugData("views", originalPath, routeData, this.viewData);
                             });
+
                         } catch (e) {
-                            throw new Error("Smth is wrong " + originalPath + ", " + e);
+                            console.error("cos jest ni tak " + originalPath + " " + e);
                         }
                     }
                 });
-                comm.on(CommEvents.FINISH, () => {
+                comm.on(Comm.EVENTS.FINISH, () => {
                     this.isViewLoading = false;
                     this.dataUpdated();
                 });
@@ -278,8 +259,11 @@ class BackofficeStore {
                 BackofficeStore.debugViewAjaxInProgress = true;
                 comm.send();
                 BackofficeStore.debugViewAjaxInProgress = false;
+
             });
+
         } catch (e) {
+
             this.viewServerErrors = e;
             this.view = null;
             this.isViewLoading = false;
@@ -287,13 +271,11 @@ class BackofficeStore {
         }
     };
 
-    public onViewLoad = (callback: () => any) => {
+    public onViewLoad = (callback) => {
         this.onViewLoadArr.push(callback);
     };
 
-    public onViewLoaded = (callback: () => any) => {
+    public onViewLoaded = (callback) => {
         this.onViewLoadedArr.push(callback);
     };
 }
-
-export { BackofficeStore };

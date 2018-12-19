@@ -28,8 +28,6 @@
     "resources",
     "vendor",
     "assets",
-    "data",
-    "./node_modules/*",
-    "node_modules"
+    "data"
   ]
 }

@@ -1,38 +1,32 @@
-export interface IPositionCalculatorOptions {
+interface IPositionCalculatorOptions {
     itemAt: string;
-    relativeToAt: string;
-    offsetX?: number;
-    offsetY?: number;
-    // theSameWidth?: boolean;
-    widthCalc?: "none" | "same" | "min" | "max";
+    targetAt: string;
+    offsetX: number;
+    offsetY: number;
+    theSameWidth: boolean;
 }
 
 export class PositionCalculator {
     private item: HTMLElement;
-    private target: HTMLElement | ClientRect;
+    private target: HTMLElement;
     private options: IPositionCalculatorOptions;
     private defaults: IPositionCalculatorOptions = {
         itemAt: "top left",
-        relativeToAt: "top left",
+        targetAt: "top left",
         offsetX: 0,
         offsetY: 0,
-        widthCalc: "none",
+        theSameWidth: false,
     };
 
-    constructor(
-        target: HTMLElement | ClientRect,
-        item: HTMLElement,
-        options: Partial<IPositionCalculatorOptions> = {},
-    ) {
+    constructor(target: HTMLElement, item: HTMLElement, options: Partial<IPositionCalculatorOptions> = {}) {
         this.item = item;
         this.target = target;
-        this.options = { ...this.defaults, ...options };
+        this.options = {...this.defaults, ...options};
     }
 
     private getRefPoint(config: string, position: ClientRect): number[] {
         const [vertical, horizontal] = config.split(" ");
-        let x: number;
-        let y: number;
+        let x, y: number;
 
         if (horizontal == "left") {
             x = position.left;
@@ -56,67 +50,38 @@ export class PositionCalculator {
         const corr = [0, 0];
 
         let currentElement: HTMLElement | Node = this.item;
-
-
         while (currentElement) {
             currentElement = currentElement.parentNode;
             if (currentElement instanceof HTMLElement) {
                 const element: HTMLElement = currentElement as HTMLElement;
                 const style = window.getComputedStyle(element, null);
                 if (style.position == "relative") {
-
-
                     const clientRect = element.getBoundingClientRect();
                     corr[0] -= clientRect.left;
                     corr[1] -= clientRect.top;
                 } else {
-                    // console.log(style.position);
+                    //console.log(style.position);
                 }
             }
         }
         return corr;
     }
 
-    public calculate(): React.CSSProperties {
-        let targetPositionData;
-        // this.target == ClientRect
-        // @ts-ignore
-        if (this.target.width !== undefined) {
-            targetPositionData = this.target;
-        } else {
-            // @ts-ignore
-            targetPositionData = this.target.getBoundingClientRect();
+    public calculate() {
+        const targetPositionData = this.target.getBoundingClientRect();
+        const targetRefPoint = this.getRefPoint(this.options.targetAt, targetPositionData);
+
+        if (this.options.theSameWidth) {
+            this.item.style.width = targetPositionData.width + "px";
         }
-        const targetRefPoint = this.getRefPoint(this.options.relativeToAt, targetPositionData);
 
-        let styles: React.CSSProperties = {};
-
-        let itemPositionData = this.item.getBoundingClientRect();
-
-        if (this.options.widthCalc != "none") {
-            let widthToApply = itemPositionData.width;
-            if (this.options.widthCalc == "same") {
-                widthToApply = targetPositionData.width;
-            } else if (this.options.widthCalc == "max" && itemPositionData.width > targetPositionData.width) {
-                widthToApply = targetPositionData.width;
-            } else if (this.options.widthCalc == "min" && itemPositionData.width < targetPositionData.width) {
-                widthToApply = targetPositionData.width;
-            }
-
-            styles.width = widthToApply;
-            itemPositionData = { ...itemPositionData };
-            // @ts-ignore
-            itemPositionData.width = widthToApply;
-            // @ts-ignore
-            itemPositionData.right = itemPositionData.width + widthToApply;
-        }
+        const itemPositionData = this.item.getBoundingClientRect();
 
         // const correction = this.getItemContainerPositionCorrection();
         const correction = [0, 0];
 
         const [vertical, horizontal] = this.options.itemAt.split(" ");
-        let x: number;
-        let y: number;
+        let x, y: number;
 
         if (horizontal == "left") {
             x = 0;
@@ -133,27 +98,12 @@ export class PositionCalculator {
             y = -itemPositionData.height / 2;
         }
 
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        let scrollTop  = window.pageYOffset || document.documentElement.scrollTop,
+            scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-        styles = {
-            ...styles,
-            left: targetRefPoint[0] + x + this.options.offsetX + correction[0] + scrollLeft,
-            top: targetRefPoint[1] + y + this.options.offsetY + correction[1] + scrollTop,
-        };
 
-        if (styles.left < 0) {
-            styles.left = 0;
-        } else if ((styles.left as number) + itemPositionData.width > window.innerWidth) {
-            styles.left = window.innerWidth - itemPositionData.width;
-        }
+        this.item.style.left = targetRefPoint[0] + x + this.options.offsetX + correction[0] + scrollLeft + "px";
+        this.item.style.top = targetRefPoint[1] + y + this.options.offsetY + correction[1] + scrollTop + "px";
 
-        if (styles.top < 0) {
-            styles.top = 0;
-        } else if ((styles.top as number) + itemPositionData.height > window.innerHeight) {
-            styles.top = window.innerHeight - itemPositionData.height;
-        }
-
-        return styles;
     }
 }

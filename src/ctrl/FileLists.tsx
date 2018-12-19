@@ -97,7 +97,7 @@ const ImageBox = SortableElement((props) => {
                 </span>
                 <div className="w-gallery-name">{file.name}</div>
                 {"data" in file &&
-                    file.data &&
+                    "startTime" in JSON.parse(file.data) &&
                         JSON.parse(file.data).startTime != "rejected" &&
                             <div>
                                 <div style={{fontSize: 9}}>{`Od: ${JSON.parse(file.data).startTime}`}</div>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Icon } from "../Icon";
+import { Icon } from "../ctrl/Icon";
 
 export interface IMenuSection {
     active: boolean;
@@ -10,9 +10,9 @@ export interface IMenuSection {
 }
 
 export interface IMenuElement {
-    icon: string;
-    route: string;
-    title: string;
+    icon: string; //"fa-shopping-cart"
+    route: string; //"app/shop/orders/index"
+    title: string; //"Zamówienia"
 }
 
 interface IMenuProps {
@@ -26,50 +26,44 @@ interface IMenuState {
     expanded: boolean;
 }
 
-export class Menu extends React.PureComponent<IMenuProps, IMenuState> {
+export class Menu extends React.Component<IMenuProps, IMenuState> {
     constructor(props: IMenuProps) {
         super(props);
-        // @ts-ignore
         if (window.localStorage.backofficeMenuOpened === undefined) {
-            // @ts-ignore
             window.localStorage.backofficeMenuOpened = "1";
         }
 
         this.state = {
             currentMenuOpened: -1,
             expanded:
-                // @ts-ignore
                 window.localStorage.backofficeMenuOpened !== undefined
-                    ? // prettier-ignore
-                      // @ts-ignore
-                      window.localStorage.backofficeMenuOpened == "1"
+                    ? window.localStorage.backofficeMenuOpened == "1"
                     : props.mobile,
         };
     }
 
-    public handleTitleEnter = (index: number) => {
+    public handleTitleEnter(index) {
         if (!this.state.expanded) {
             this.setState({ currentMenuOpened: index });
         }
-    };
+    }
 
-    public handleMenuLeave = () => {
+    public handleMenuLeave() {
         if (!this.state.expanded) {
             this.setState({ currentMenuOpened: -1 });
         }
-    };
+    }
 
-    public handleElementClickOpen(el: IMenuElement, event: React.MouseEvent) {
+    public handleElementClickOpen(el, event) {
         event.stopPropagation();
         this.props.onMenuElementClick(el, true);
     }
 
-    public handleElementClick(el: IMenuElement) {
+    public handleElementClick(el) {
         this.props.onMenuElementClick(el);
     }
 
     public changeExpandState = () => {
-        // @ts-ignore
         window.localStorage.backofficeMenuOpened = this.state.expanded ? "0" : "1";
         this.setState({ expanded: !this.state.expanded });
     };
@@ -87,7 +81,7 @@ export class Menu extends React.PureComponent<IMenuProps, IMenuState> {
         return (
             <div
                 className={"w-menu " + (this.state.expanded ? "w-menu-expanded" : "w-menu-collapsed")}
-                onMouseLeave={this.handleMenuLeave}
+                onMouseLeave={this.handleMenuLeave.bind(this)}
                 style={style}
             >
                 {this.props.elements.map((el, index) => (
@@ -95,7 +89,7 @@ export class Menu extends React.PureComponent<IMenuProps, IMenuState> {
                         <div
                             className="menu-section-title"
                             onClick={() => this.setState({ currentMenuOpened: index })}
-                            onMouseEnter={() => this.handleTitleEnter(index)}
+                            onMouseEnter={this.handleTitleEnter.bind(this, index)}
                         >
                             <Icon name={el.icon} />
                             <span>{el.title}</span>
@@ -107,15 +101,15 @@ export class Menu extends React.PureComponent<IMenuProps, IMenuState> {
                             }
                         >
                             {!this.state.expanded && <div className="section-inner-title">{el.title}</div>}
-                            {el.elements.map((subelement) => (
+                            {el.elements.map((el) => (
                                 <div
-                                    key={subelement.title}
+                                    key={el.title}
                                     className="menu-link"
-                                    onClick={() => this.handleElementClick(subelement)}
+                                    onClick={this.handleElementClick.bind(this, el)}
                                 >
-                                    {subelement.title}
+                                    {el.title}
                                     <div
-                                        onClick={(event) => this.handleElementClickOpen(subelement, event)}
+                                        onClick={this.handleElementClickOpen.bind(this, el)}
                                         className={"menu-link-open-window"}
                                     >
                                         <Icon name={"OpenInNewWindow"} />

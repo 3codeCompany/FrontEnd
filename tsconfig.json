@@ -1,47 +1,16 @@
 {
-    "compilerOptions": {
-        "noEmit": false,
-        "declaration": true,
-        "declarationMap": true,
-        "declarationDir": "lib",
-        "outDir": "lib",
-        "sourceMap": true,
-        "jsx": "react",
-        "allowJs": false,
-        "allowSyntheticDefaultImports": true,
-        "moduleResolution": "node",
-        "module": "esnext",
-        "target": "es6",
-        "importHelpers": true,
-        "noImplicitAny": true,
-        "downlevelIteration": true,
-        "removeComments": true,
-
-        "skipLibCheck": true,
-
-        "lib": [
-            "ES2017",
-            "ES2015",
-            "DOM",
-            "es5",
-            "es2015.promise",
-            "es2015.collection",
-            "es2015.iterable",
-            "dom.iterable"
-        ],
-        "baseUrl": ".",
-        "paths": {
-            "frontend/src": ["./src"] // This mapping is relative to "baseUrl"
-        },
-        "typeRoots": [
-            "../../node_modules/@types"
-        ]
-    },
+  "compilerOptions": {
+    "sourceMap": true,
+    "baseUrl": ".",
+    "jsx": "react",
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
 
 
-    "exclude": ["resources", "vendor", "assets", "data", "node_modules"],
-    "include": [
-        "./src/**/*"
-        // , "./stories/**/*"
+    "lib": [
+      "DOM",
+      "ES2017"
     ]
+  }
 }

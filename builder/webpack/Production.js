@@ -1,6 +1,6 @@
 //const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const fs = require('fs');
-
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 
 var getProductionConf = function (ENTRY_POINTS, PUBLIC_PATH, PATH, BASE_PATH, LANGUAGE, ANALYZE, webpack) {
@@ -12,7 +12,6 @@ var getProductionConf = function (ENTRY_POINTS, PUBLIC_PATH, PATH, BASE_PATH, LA
         path: PATH,
         publicPath: PUBLIC_PATH
     };
-    conf.stats = "errors-only";
     conf.plugins = [
         new webpack.HashedModuleIdsPlugin(),
         new webpack.optimize.ModuleConcatenationPlugin(),
@@ -34,7 +33,6 @@ var getProductionConf = function (ENTRY_POINTS, PUBLIC_PATH, PATH, BASE_PATH, LA
 
     ];
     if (ANALYZE) {
-        const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
         conf.plugins.push(new BundleAnalyzerPlugin());
     }
 

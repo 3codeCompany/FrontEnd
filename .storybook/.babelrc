@@ -1,29 +1,9 @@
 {
-    "presets": [
-        //"stage-0",
-        [
-            "@babel/preset-env",
-            {
-                "targets": {
-                    "browsers": ["last 1 Chrome versions", "last 1 Firefox versions", "last 1 Edge versions"],
-                    "node": "current"
-                },
-                "useBuiltIns": "entry",
-                "modules": false
-            }
-        ],
-        "@babel/react"
-    ],
-    "plugins": [
-
-        "transform-react-constant-elements",
-        "transform-react-inline-elements",
-        "@babel/plugin-syntax-jsx",
-
-        "@babel/proposal-class-properties",
-        "@babel/proposal-object-rest-spread",
-        "@babel/plugin-syntax-dynamic-import",
-        "react-hot-loader/babel"
-
-    ]
+  "presets": [
+    "stage-0",
+    "react"
+  ],
+  "plugins": [
+    //"react-hot-loader/babel"
+  ]
 }

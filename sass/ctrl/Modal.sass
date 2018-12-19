@@ -1,0 +1,298 @@
+.w-overlay
+    display: inline-block
+
+.w-modal-container
+    position: absolute
+    z-index: 1040
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    background-color: rgba(0, 0, 0, 0.15)
+    overflow: auto
+
+.w-modal-confirm
+    z-index: 2040
+
+.w-modal-shadow
+    z-index: auto
+    opacity: 0.15
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    position: fixed
+
+.w-modal
+
+    position: absolute
+    background: white
+    border: 1px solid rgba(0, 0, 0, 0.3)
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3)
+    display: inline-block
+    border-radius: 3px
+
+    //transform: translate(-50%, -50%)
+
+    &:focus
+        outline: solid 1px transparent
+
+    .w-modal-close
+        background-color: rgba(255, 255, 255, 1)
+        position: absolute
+        height: 20px
+        width: 20px
+        text-align: center
+        border-radius: 4px
+        line-height: 18px
+
+        right: 8px
+        top: 11px
+        display: block
+        cursor: pointer
+        color: black
+        font-size: 20px
+        &:hover
+            color: darkred
+
+    .w-modal-title
+        padding: 10px 50px 10px 10px
+        font-size: 15px
+        border-bottom: solid 1px grey
+
+.w-shadow
+    z-index: 90
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background-color: #b9b9b9
+    opacity: 0.2
+
+    .loader
+        position: absolute
+        top: calc(50% - 10px)
+        left: calc(50% - 10px)
+
+.w-shadow-fixed
+    position: fixed
+
+.w-tooltip
+    position: absolute
+    top: 0
+    left: 0
+    outline: none
+    width: auto
+    z-index: 100000
+
+
+    opacity: 0
+    transition: opacity 0.2s ease-in-out
+
+
+    .w-tooltip-hover-dark
+        color: white
+        background-color: black
+        border-radius: 4px
+        padding: 4px
+    .w-tooltip-hover-light
+        color: black
+        background-color: white
+        border: solid 1px grey
+        box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3)
+
+        border-radius: 4px
+        padding: 4px
+
+
+//.w-tooltip
+    .w-modal
+        transform: translateY( 10px )
+
+        padding: 5px
+        border: 1px solid #eaeaea
+        box-shadow: 0 0 5px 0px rgba(0,0,0,0.4)
+        padding: 0
+    .w-toolbar-brake
+        position: absolute
+        height: 16px
+        width: 16px
+        top: -8px
+        transform: rotate(45deg)
+        background-color: white
+        box-shadow: inherit
+        z-index: 9
+    .w-toolbar-content
+        z-index: 10
+        position: relative
+        background: white
+        padding: 10px
+
+.w-tooltip-top
+    .w-modal
+        transform: translateY(-10px)
+    .w-toolbar-brake
+        top: auto
+        bottom: -8px
+
+$loader-size: 1
+span.loader, .w-loader > span
+    display: block
+    width: (20*$loader-size)+px
+    height: (20*$loader-size)+px
+    animation: rotate 1.2s infinite linear
+    transform: rotate(45deg)
+
+    i
+        width: (9*$loader-size)+px
+        height: (9*$loader-size)+px
+        border-radius: 100%
+        background-color: #106ebe
+        transform: scale(.75)
+        display: block
+        position: absolute
+        opacity: .3
+        animation: opacity 1s infinite linear alternate
+        transform-origin: 50% 50%
+        &:first-child
+            left: 0
+            top: 0
+        &:nth-child(2)
+            right: 0
+            top: 0
+            animation-delay: .4s
+        &:nth-child(3)
+            right: 0
+            bottom: 0
+            animation-delay: .8s
+        &:nth-child(4)
+            left: 0
+            bottom: 0
+            animation-delay: 1.2s
+
+@for $loaderSize from 1 through 4
+    span.loader-x#{$loaderSize}
+        width: (20*$loaderSize)+px
+        height: (20*$loaderSize)+px
+        i
+            width: (9*$loaderSize)+px
+            height: (9*$loaderSize)+px
+
+
+.animate-shadowIn
+    animation: shadowIn
+    animation-duration: 2s
+.animate-fadeIn
+    animation: shadowIn
+    animation-duration: 0.2s
+.animate-perspective
+    animation: perspective
+    animation-duration: 0.2s
+.animate-perspectiveBounce
+    animation: perspectiveBounce
+    animation-duration: 0.5s
+.animate-fadeInLeft
+    animation-name: fadeInLeft
+    animation-duration: 0.2s
+    animation-fill-mode: both
+.animate-fadeInRight
+    animation-name: fadeInRight
+    animation-duration: 0.2s
+    animation-fill-mode: both
+.animate-fadeInDown
+    animation-name: fadeInDown
+    animation-duration: 0.2s
+    animation-fill-mode: both
+.animate-fadeInUp
+    animation-name: fadeInUp
+    animation-duration: 0.2s
+    animation-fill-mode: both
+.animate-error
+    animation-name: error
+    animation-duration: 0.6s
+    animation-fill-mode: both
+
+@keyframes perspective
+    0%
+        transform: perspective(500px) rotateX(-90deg) rotateY(0deg) rotateZ(0deg)
+    100%
+        transform: perspective(500px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)
+
+@keyframes shadowIn
+    0%
+        opacity: 0
+    100%
+        opacity: 1
+
+@keyframes fadeInLeft
+    0%
+        opacity: 0
+        -webkit-transform: translate3d(-100%, 0, 0)
+        transform: translate3d(-100%, 0, 0)
+    100%
+        opacity: 1
+        -webkit-transform: none
+        transform: none
+
+@keyframes fadeInRight
+    0%
+        opacity: 0
+        -webkit-transform: translate3d(100%, 0, 0)
+        transform: translate3d(100%, 0, 0)
+    100%
+        opacity: 1
+        -webkit-transform: none
+        transform: none
+
+@keyframes fadeInUp
+    0%
+        opacity: 0
+        -webkit-transform: translate3d(0, 100%, 0)
+        transform: translate3d(0, 100%, 0)
+    100%
+        opacity: 1
+        -webkit-transform: none
+        transform: none
+
+@keyframes fadeInDown
+    0%
+        opacity: 0
+        -webkit-transform: translate3d(0, -100%, 0)
+        transform: translate3d(0, -100%, 0)
+    100%
+        opacity: 1
+        -webkit-transform: none
+        transform: none
+
+@keyframes perspectiveBounce
+    0%
+        transform: perspective(400px) rotate3d(1, 0, 0, 90deg)
+        transition-timing-function: ease-in
+        opacity: 0
+    40%
+        transform: perspective(400px) rotate3d(1, 0, 0, -20deg)
+        transition-timing-function: ease-in
+    60%
+        transform: perspective(400px) rotate3d(1, 0, 0, 10deg)
+        opacity: 1
+    80%
+        transform: perspective(400px) rotate3d(1, 0, 0, -5deg)
+    100%
+        transform: perspective(400px)
+
+@keyframes error
+    0%
+        transform: scale3d(1, 1, 1)
+    30%
+        transform: scale3d(1.25, 0.75, 1)
+    40%
+        transform: scale3d(0.75, 1.25, 1)
+    50%
+        transform: scale3d(1.15, 0.85, 1)
+    65%
+        transform: scale3d(.95, 1.05, 1)
+    75%
+        transform: scale3d(1.05, .95, 1)
+    100%
+        transform: scale3d(1, 1, 1)

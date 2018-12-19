@@ -9,8 +9,10 @@ module.exports = function (input) {
 
     var entryPoints = []
 
-
-
+    if (input.USE_BUILD_IN_VENDORS === true || input.USE_BUILD_IN_VENDORS === undefined) {
+        entryPoints.push(resolve(__dirname, '../../../src/vendors.js'));
+    }
+    entryPoints.push(input.BASE_PATH + '/build/js/vendors.js');
 
 
     if (fs.existsSync(input.PATH + '/webpack-assets.json')) {

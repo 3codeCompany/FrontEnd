@@ -1,42 +1,18 @@
 // declare var Views: any;
-
+import * as ViewsRoute from "../../../../build/js/tmp/components-route.include.js";
 import RouterException from "./RouterException";
 
 declare var PRODUCTION: any;
 
-export interface IRouteElement {
-    _controller: string;
-    _method: string;
-    _package: string;
-    _routePath: string;
-    _baseRoutePath: string;
-    _debug?: {
-        file: string;
-        line: number;
-        template: string;
-        componentExists: boolean;
-        templateExists: boolean;
-    };
-    component: string;
-    index: number;
-    namespace: string;
-    componentObject?: React.ComponentType;
-}
-
-interface IRouteList {
-    [index: string]: IRouteElement;
-}
-
 class Router {
-    public routes: IRouteList = {};
-    public observers: Array<() => any> = [];
+    public routes = ViewsRoute.ViewFileMap;
+    public observers = [];
 
-    // todo zdefinowac route odp    }owiedio
-    public registerRoutes(routes: IRouteList) {
-        this.routes = routes;
+    constructor() {
+
     }
 
-    public onRoutesChanges(callback: () => any) {
+    public onRoutesChanges(callback) {
         this.observers.push(callback);
     }
 
@@ -44,7 +20,7 @@ class Router {
         return this.routes;
     };
 
-    public async getRouteInfo(path: string): Promise<IRouteElement> {
+    public async getRouteInfo(path): Frontend.Debug.RouteInfo {
         if (path.indexOf("?") != -1) {
             const purePath = path.split("?")[0];
             path = purePath;
@@ -52,43 +28,45 @@ class Router {
 
         try {
             const info = await this.resolve(path);
-            return info;
+            return info.extendedInfo;
         } catch (e) {
-            throw new Error(`[RouteInfo] No info for '${path}' found`);
+            console.log(`[RouteInfo] No info for '${path}' found`);
+            return null;
         }
+
     }
 
-    public async resolve(path: string): Promise<IRouteElement> {
+    public async resolve(path) {
         const pathInfo = path;
         let Component = null;
         let extendedInfo = null;
 
+        if (!path) {
+            return false;
+        }
+
         // dynamic path matching 12
-        for (const i in this.routes) {
-            const el = this.routes[i];
+        for (const i in ViewsRoute.ViewFileMap) {
+            const el = ViewsRoute.ViewFileMap[i];
             if (i.indexOf("{") != -1) {
                 const regexp = new RegExp(
                     "^" +
-                        i
-                            // repplace all {var} to (.+?)
-                            .replace(/\{.+?\}/g, "(.+?)")
-                            // replace all / to _
-                            .replace(/\//g, "/") +
-                        "$",
+                    i
+                    // repplace all {var} to (.+?)
+                        .replace(/\{.+?\}/g, "(.+?)")
+                        // replace all / to _
+                        .replace(/\//g, "/") +
+                    "$",
                 );
                 if (path.match(regexp) !== null) {
                     let tmp = i.split("/{")[0].split("/");
                     tmp = tmp.slice(0, -1);
                     if (el.component) {
-                        if (PRODUCTION && false) {
-                            // todo ogarnąć typowanie asynchroniczne
-                            // @ts-ignore
-                            const result = await this.routes[el.namespace + "_export"]();
+                        if (PRODUCTION) {
+                            const result = await ViewsRoute[el.namespace + "_export"]();
                             Component = result[el.index].default;
                         } else {
-                            // alert(el.component);
-                            Component = el.component;
-                            //Component = this.routes[el.component];
+                            Component = ViewsRoute[el.component];
                         }
                     }
                     extendedInfo = el;
@@ -99,14 +77,11 @@ class Router {
                     let tmp = i.split("/{")[0].split("/");
                     tmp = tmp.slice(0, -1);
                     if (el.component) {
-                        if (PRODUCTION && false) {
-                            // todo ogarnąć typowanie asynchroniczne
-                            // @ts-ignore
-                            const result = await this.routes[el.namespace + "_export"]();
+                        if (PRODUCTION) {
+                            const result = await ViewsRoute[el.namespace + "_export"]();
                             Component = result[el.index].default;
                         } else {
-                            Component = el.component;
-                            // Component = this.routes[el.component];
+                            Component = ViewsRoute[el.component];
                         }
                     }
                     extendedInfo = el;
@@ -116,16 +91,16 @@ class Router {
         }
 
         if (!extendedInfo) {
+
             throw new RouterException(`Route not found: '${path}'`);
         }
 
         if (!Component && extendedInfo) {
-            // console.error("Component file not found:" + pathInfo);
-            // console.error("Component file should be:" + extendedInfo._debug.template);
+            console.error("Component file not found:" + pathInfo);
+            console.error("Component file should be:" + extendedInfo._debug.template);
         }
 
         return {
-            // @ts-ignore
             baseURL: extendedInfo._baseRoutePath,
             path: pathInfo,
             Component,
@@ -134,4 +109,15 @@ class Router {
     }
 }
 
-export const router = new Router();
+const router = new Router();
+
+if (module.hot) {
+    module.hot.accept("../../../../build/js/tmp/components-route.include.js", (module, x) => {
+        router.routes = require("../../../../build/js/tmp/components-route.include.js").ViewFileMap;
+        for (const cb of router.observers) {
+            cb();
+        }
+    });
+}
+
+export default router;

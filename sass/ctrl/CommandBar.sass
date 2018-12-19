@@ -1,0 +1,164 @@
+.w-command-bar
+    display: block
+    z-index: 99
+    width: 100%
+    background-color: #F4F4F4
+    position: relative
+    border-bottom: solid 1px #c1c1c1
+    .search-box
+        float: left
+        border-right: 1px solid #eaeaea
+        width: 208px
+        max-width: 208px
+        background-color: #ffffff
+        color: #333333
+        height: 39px
+        position: relative
+        box-sizing: border-box
+        border-color: transparent
+        i
+            display: block
+            font-size: 14px
+            height: 40px
+            line-height: 40px
+            cursor: pointer
+            position: absolute
+            text-align: center
+            padding-left: 17px
+            padding-right: 8px
+        &:hover
+            i
+                color: #106ebe
+        input
+            height: 40px
+            padding: 8px 8px 8px 0
+            border: none
+            background-color: transparent
+            width: 100%
+            box-sizing: border-box
+            outline: 0
+            cursor: pointer
+            font-size: 14px
+            border-left: 42px solid transparent
+
+
+    .menu-bar
+        display: flex
+        justify-content: center
+        align-items: center
+
+        .buttons-left, .buttons-right
+            overflow: hidden
+            display: -webkit-box
+            display: -ms-flexbox
+            display: flex
+            align-items: center
+            -webkit-box-flex: 1
+            -ms-flex: 1 1 auto
+
+
+            vertical-align: top
+            max-width: 100%
+            min-height: 40px
+            max-height: 90px
+
+            a, button
+                display: inline-flex
+                cursor: pointer
+                padding: 0 8px 0 4px
+                min-height: 40px
+                max-height: 90px
+                align-items: center
+
+                font-size: 14px
+                &:hover
+                    text-decoration: none
+                    color: #212121
+                    background-color: #eaeaea
+                i
+                    color: #106ebe
+                    font-size: 16px
+                    padding: 0 4px
+
+        .buttons-left
+            flex: 1 1 auto
+            margin: 0 20px
+        .buttons-right
+            text-align: right
+            padding-right: 20px
+            flex: 0 0 auto
+    .dropdown-layer
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100vh
+        display: block
+        z-index: 0
+    .buttons-left
+        z-index: 9999
+    .bar-dropdown
+        display: inline-flex
+        cursor: pointer
+        padding: 0 8px 0 4px
+        font-size: 14px
+        color: #106ebe
+        position: relative
+        background: none
+        border: none
+        outline: none
+        text-align: left
+        &:hover
+            background: #eaeaea
+        i
+            font-size: 16px
+            padding: 0 4px
+        .ms-Icon--ChevronDown
+            color: #505050
+            font-size: 12px
+            margin-left: 5px
+
+    .bar-dropdown-list
+        position: absolute
+        top: 100%
+        padding: 10px 0
+        background: white
+        box-sizing: border-box
+        box-shadow: rgba(0, 0, 0, 0.4) 1px 3px 6px -1px
+        border-width: 1px
+        border-style: solid
+        border-color: rgb(234, 234, 234)
+        outline: transparent
+        transition: max-height .7s
+        overflow: hidden
+        height: auto
+        .bar-dropdown-item
+            display: flex
+            padding: 5px
+            cursor: pointer
+            padding-right: 15px
+            i
+                font-size: 14px
+                color: rgb(0, 120, 215)
+                display: inline-block
+                min-height: 1px
+                max-height: 32px
+                width: 12px
+                margin-right: 10px
+                margin-left: 4px
+                vertical-align: middle
+                flex-shrink: 0
+            span
+                color: #1e1e1e
+                font-size: 13px
+            &:hover
+                background: #f6f6f6
+        .input-inside
+            width: 300px
+            display: flex
+            justify-content: center
+            align-items: center
+            flex-direction: column
+            input
+                width: 90%
+                padding: 2px 5px

@@ -1,9 +1,36 @@
 const path = require("path");
 const fs = require("fs");
+const https = require("https");
 const mkdirp = require("mkdirp");
 
 var getDevServerConf = function (ENTRY_POINTS, PUBLIC_PATH, PATH, BASE_PATH, HTTPS, PORT, DOMAIN, LANGUAGE, webpack) {
+    const generateSign = () => {
+        const selfsigned = require("selfsigned");
+        const attrs = [{name: "commonName", value: "localhost"}];
+        const pems = selfsigned.generate(attrs, {
+            algorithm: "sha256",
+            keySize: 2048,
+            extensions: [
+                {
+                    name: "subjectAltName",
+                    altNames: [
+                        {
+                            type: 2, // DNS
+                            value: "localhost",
+                        },
+                    ],
+                    cA: true,
+                },
+            ],
+        });
+        if (!fs.existsSync(BASE_PATH + "/build/js/ssl")) {
+            fs.mkdirSync(BASE_PATH + "/build/js/ssl");
+            fs.writeFileSync(BASE_PATH + "/build/js/ssl/server.crt", pems.cert, {encoding: "utf-8"});
+            fs.writeFileSync(BASE_PATH + "/build/js/ssl/server.key", pems.private, {encoding: "utf-8"});
+        }
+    };
 
+    generateSign();
 
     conf = {};
 
@@ -65,8 +92,7 @@ var getDevServerConf = function (ENTRY_POINTS, PUBLIC_PATH, PATH, BASE_PATH, HTT
 
             app.get("/debug/getFile", function (req, res) {
                 res.header("Access-Control-Allow-Origin", "*");
-                //res.send(fs.readFileSync(BASE_PATH + req.param("file")));
-                res.send(fs.readFileSync(req.param("file")));
+                res.send(fs.readFileSync(BASE_PATH + req.param("file")));
             });
             app.post("/*", function (req, res, next) {
                 res.header("Access-Control-Allow-Origin", "*");
@@ -82,7 +108,7 @@ var getDevServerConf = function (ENTRY_POINTS, PUBLIC_PATH, PATH, BASE_PATH, HTT
 
             app.post("/createFile", function (req, response) {
                 let {file, type} = req.body;
-                let dir = path.dirname(BASE_PATH + file);
+                let dir = path.dirname(BASE_PATH +file);
                 if (!fs.existsSync(dir)) {
                     mkdirp.sync(dir);
                 }
@@ -113,12 +139,10 @@ var getDevServerConf = function (ENTRY_POINTS, PUBLIC_PATH, PATH, BASE_PATH, HTT
                     fileTest = "/bin/phpstorm.sh";
                 }
 
-
                 fs.readdirSync(ideDir).forEach((_file) => {
                     console.log(_file);
                     if (fs.existsSync(ideDir + _file + fileTest)) {
-                        let command = `"${ideDir}${_file}${fileTest}" ${BASE_PATH} --line ${line} ${file}`;
-                        //let command = `"${ideDir}${_file}${fileTest}" ${BASE_PATH} --line ${line} ${BASE_PATH}${file}`;
+                        let command = `"${ideDir}${_file}${fileTest}" ${BASE_PATH} --line ${line} ${BASE_PATH}${file}`;
                         console.log(command);
                         exec(command, function (error, stdout, stderr) {
                             if (!error) {

@@ -1,29 +1,13 @@
 type IResponseCallback = (response: any) => any;
-interface IErrorFallbackData {
-    url: string;
-    input: any;
-    response: any;
-}
 
 declare var PRODUCTION: any;
 
-export enum CommEvents {
-    BEFORE_SEND = "beforeSend",
-    PROGRESS = "progress",
-    RESPONSE = "response",
-    ERROR = "error",
-    CONNECTION_ERROR = "connectionError",
-    SUCCESS = "success",
-    VALIDATION_ERRORS = "validationErrors",
-    FINISH = "finish",
-}
-
 class Comm {
     public static basePath = "";
-    public static errorFallback: (data: IErrorFallbackData) => any = null;
+    public static errorFallback = null;
 
-    public static onStart: Array<(url: string, data: any, method: string) => any> = [];
-    public static onFinish: Array<(url: string, data: any, method: string) => any> = [];
+    public static onStart = [];
+    public static onFinish = [];
 
     public static EVENTS = {
         BEFORE_SEND: "beforeSend",
@@ -38,14 +22,14 @@ class Comm {
 
     public debug: boolean = true;
 
-    private readonly registredEvents: any;
-    private readonly method: string;
-    private readonly url: string;
+    private registredEvents: any;
+    private method: string;
+    private url: string;
     private data: any;
-    private readonly namespace: string;
+    private namespace: string;
     private xhr: XMLHttpRequest;
 
-    constructor(url: string, method = "POST") {
+    constructor(url, method = "POST") {
         this.url = url;
         this.data = {};
         this.namespace = null;
@@ -65,23 +49,24 @@ class Comm {
         this.xhr = null;
     }
 
-    public on(event: CommEvents, callback: IResponseCallback) {
+    public on(event: string, callback: IResponseCallback) {
         if (!Array.isArray(this.registredEvents[event])) {
-            throw new Error("Unknow event: " + event);
+            console.error("Unknow event: " + event);
+            console.log(this.registredEvents);
         } else {
             this.registredEvents[event].push(callback);
         }
     }
 
-    public callEvent(event: CommEvents, data: any) {
-        this.registredEvents[event].map((el: IResponseCallback) => el(data));
+    public callEvent(event, data) {
+        this.registredEvents[event].map((el) => el(data));
     }
 
-    public setData(data: any) {
+    public setData(data) {
         this.data = data;
     }
 
-    public appendFormData(FormData: FormData, data: any, name = "") {
+    public appendFormData(FormData: FormData, data, name = "") {
         if (data instanceof FileList) {
             for (let i = 0; i < data.length; i++) {
                 // get item
@@ -97,10 +82,10 @@ class Comm {
         }
 
         if (typeof data === "object" && data != null) {
-            if (Array.isArray(data) && data.length == 0) {
+            if(Array.isArray(data) && data.length == 0){
                 // for emtpty arrays sending empty value
-                FormData.append(name, "");
-            } else {
+                FormData.append(name,  "" );
+            }else {
                 Object.entries(data).map(([index, value]) => {
                     if (name == "") {
                         this.appendFormData(FormData, value, index);
@@ -116,12 +101,14 @@ class Comm {
                 });
             }
         } else {
+            //if (data && data != null) {
             FormData.append(name, data == null ? "" : data);
+            //}
         }
     }
 
     public prepareData() {
-        let data: any = {};
+        let data = {};
         if (this.namespace) {
             data[this.namespace] = this.data;
         } else {
@@ -130,7 +117,7 @@ class Comm {
         return data;
     }
 
-    public debugError(error: string) {
+    public debugError(error) {
         if (Comm.errorFallback) {
             Comm.errorFallback({
                 url: Comm.basePath + this.url,
@@ -154,8 +141,8 @@ class Comm {
         const data = this.prepareData();
 
         if (!PRODUCTION) {
-            console.log("Frontend Comm dev debug. Sending on: " + Comm.basePath + this.url);
-            console.log(data);
+            console.log( "Frontend Comm dev debug. Sending on: " + Comm.basePath + this.url );
+            console.log( data );
         }
 
         const formData = new FormData();
@@ -163,14 +150,14 @@ class Comm {
             this.appendFormData(formData, data);
         }
 
-        this.callEvent(CommEvents.BEFORE_SEND, data);
+        this.callEvent(Comm.EVENTS.BEFORE_SEND, data);
 
         this.xhr = new XMLHttpRequest();
 
         this.xhr.upload.onprogress = (event) => {
-            this.callEvent(CommEvents.PROGRESS, {
+            this.callEvent(Comm.EVENTS.PROGRESS, {
                 loaded: event.loaded,
-                percent: Math.round((event.loaded / event.total) * 100),
+                percent: Math.round(event.loaded / event.total * 100),
             });
         };
 
@@ -190,12 +177,13 @@ class Comm {
                     let exceptionOccured = false;
                     let data: any;
                     try {
-                        this.callEvent(CommEvents.RESPONSE, this.xhr.response);
+                        this.callEvent(Comm.EVENTS.RESPONSE, this.xhr.response);
                         data = JSON.parse(this.xhr.response);
                         if (data.__arrowException !== undefined) {
                             throw data;
                         }
                     } catch (e) {
+
                         exceptionOccured = true;
                         if (this.registredEvents.error.length == 0) {
                             this.debugError(this.xhr.response);
@@ -204,35 +192,28 @@ class Comm {
                                 this.debugError(this.xhr.response);
                             }
 
-                            this.callEvent(CommEvents.ERROR, this.xhr.response);
+                            this.callEvent(Comm.EVENTS.ERROR, this.xhr.response);
+
                         }
                     }
 
                     if (!exceptionOccured) {
                         if (data.errors === undefined && data.accessDeny === undefined) {
-                            this.callEvent(CommEvents.SUCCESS, data);
+                            this.callEvent(Comm.EVENTS.SUCCESS, data);
                         } else if (data.accessDeny !== undefined) {
                             alert("Access deny " + data.accessDeny);
                         } else {
-                            const validationErrors: { fieldErrors: Map<string, string[]>; formErrors: string[] } = {
-                                fieldErrors: new Map<string, string[]>(),
-                                formErrors: [],
-                            };
-                            validationErrors.formErrors = data.formErrors || [];
-                            for (const field in data) {
-                                validationErrors.fieldErrors.set(field, data[field]);
-                            }
-                            this.callEvent(CommEvents.VALIDATION_ERRORS, validationErrors);
+                            this.callEvent(Comm.EVENTS.VALIDATION_ERRORS, data);
                         }
                     }
                 } else {
                     // 0 == abotreted
                     if (this.xhr.status != 0) {
                         this.debugError(this.xhr.status + "<hr />");
-                        this.callEvent(CommEvents.CONNECTION_ERROR, this.xhr.response);
+                        this.callEvent(Comm.EVENTS.CONNECTION_ERROR, this.xhr.response);
                     }
                 }
-                this.callEvent(CommEvents.FINISH, this.xhr);
+                this.callEvent(Comm.EVENTS.FINISH, this.xhr);
 
                 if (Comm.onFinish.length > 0) {
                     for (const cb of Comm.onFinish) {
@@ -263,34 +244,37 @@ class Comm {
         return this.xhr;
     }
 
-    public static __preparePromise(method: string, url: string, data: any, callback: IResponseCallback): Promise<any> {
+    public static __preparePromise(method, url, data, callback): Promise<any> {
         return new Promise((resolve, reject) => {
-            const comm = new Comm(url, method);
+            const comm = new Comm(url);
+            comm.method = method;
             if (callback) {
-                comm.on(CommEvents.SUCCESS, callback);
+                comm.on("success", callback);
             }
-            comm.on(CommEvents.SUCCESS, (response: any) => resolve(response));
+            comm.on("success", (data) => resolve(data));
 
-            comm.on(CommEvents.VALIDATION_ERRORS, (response: any) => reject(response));
-            comm.on(CommEvents.CONNECTION_ERROR, (response: any) => reject(response));
-            comm.on(CommEvents.ERROR, (response: any) => reject(response));
+            comm.on("validationErrors", (data) => reject(data));
+            comm.on("connectionError", (data) => reject(data));
+            comm.on("error", (data) => reject(data));
 
             comm.setData(data);
             comm.send();
         });
     }
 
-    public static _post(url: string, data = {}, callback: IResponseCallback = null): Promise<any> {
+    public static _post(url, data = {}, callback = null): Promise<any> {
         return Comm.__preparePromise("POST", url, data, callback);
     }
 
-    public static _get(url: string, data = {}, callback: IResponseCallback = null): Promise<any> {
+    public static _get(url, data = {}, callback = null): Promise<any> {
         return Comm.__preparePromise("GET", url, data, callback);
     }
 
-    public static _put(url: string, data = {}, callback: IResponseCallback = null): Promise<any> {
+    public static _put(url, data = {}, callback = null): Promise<any> {
         return Comm.__preparePromise("PUT", url, data, callback);
     }
 }
 
-export { Comm };
+export default Comm;
+
+export {Comm};
