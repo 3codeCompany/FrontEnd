@@ -136,6 +136,7 @@ export interface IFileList extends IFieldProps {
     maxLength?: number;
     itemStyle?: any;
     downloadConnector?: (file: IFile) => string;
+    dateTimeFields: boolean;
 }
 
 export interface IFileViewerProps {
@@ -174,6 +175,10 @@ class FileList extends React.Component<IFileList, any> {
                 viewer: PDFViewer,
             },
         ];
+    }
+
+    public componentDidMount() {
+        !this.props.dateTimeFields && this.setState({dateFrom: "rejected", dateTo: "rejected"});
     }
 
     public handleFileAdd(addedFiles: Array<File & { preview: string }>) {
@@ -320,7 +325,7 @@ class FileList extends React.Component<IFileList, any> {
 
         return (
             <div className="w-file-list">
-                {!this.state.dateTimeFields &&
+                {(!this.state.dateTimeFields && this.props.dateTimeFields) &&
                 <div>
                     <a
                         className={"btn btn-primary"}
