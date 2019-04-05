@@ -4,10 +4,10 @@ const path = require("path");
 let routeEqualizer = "";
 
 const extractor = function (basePath, targetComponentFile, targetSassFile, production = false) {
-    let command = "php bin/console debug:router --json";
+    let command = "APP_DISABLE_DB=1 php bin/console debug:router --json";
 
     console.log("Route check ...");
-    exec(command, {maxBuffer: 1024 * 500, cwd: basePath}, function (error, stdout, stderr) {
+    exec(command, {maxBuffer: 1024 * 1500, cwd: basePath}, function (error, stdout, stderr) {
         if (!error) {
             let route = JSON.parse(stdout);
             const routeSimplyfied = Object.entries(route).map(([index, el]) => [
