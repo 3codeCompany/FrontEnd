@@ -6,8 +6,6 @@ import { IMenuElement, IMenuSection, Menu } from "./Menu";
 import * as NProgress from "nprogress/nprogress.js";
 import "nprogress/nprogress.css";
 
-import hotkeys, { KeyHandler } from "hotkeys-js";
-
 import { LoadingIndicator } from "../LoadingIndicator";
 
 // @ts-ignore
@@ -27,6 +25,7 @@ import { ICommand } from "../CommandBar";
 import "./BackOfficePanel.sass";
 import DebugCommLog from "./DebugCommLog";
 import IBackOfficeStoreState from "./interfaces/IBackOfficeStoreState";
+import { HotKeys, ObserveKeys } from "react-hotkeys";
 
 const DebugTool = React.lazy(() => import("./DebugTool"));
 declare var PRODUCTION: boolean;
@@ -178,13 +177,17 @@ export class BackOfficePanel extends React.Component<IBackOfficePanelProps, IBac
                 // clearTimeout(timeout);
                 timeout = setTimeout(this.adjustToSize.bind(this), 30);
             });
-
-            hotkeys("ctrl+g", (event: KeyboardEvent) => {
-                event.preventDefault();
-                this.setState({ navigationWindowOpened: true });
-                return false;
-            });
         }
+
+        window.addEventListener("keydown", (e) => {
+            console.log("tutaj");
+            if (document.activeElement.tagName == "BODY") {
+                this.container.focus();
+                if (e.key == "Escape") {
+                    this.hideGlobalMenu(null);
+                }
+            }
+        });
     }
 
     public componentDidUpdate() {
@@ -195,6 +198,7 @@ export class BackOfficePanel extends React.Component<IBackOfficePanelProps, IBac
     }
 
     public handleChangeView = (input = {}, callback: () => any) => {
+        this.escTarget = null;
         this.handleLoadStart();
 
         this.store.changeView(null, input, () => {
@@ -219,179 +223,209 @@ export class BackOfficePanel extends React.Component<IBackOfficePanelProps, IBac
         obj[name] = value;
         this.setState(obj, callback);
     };
+    private escTarget: any;
+
+    private hideGlobalMenu = (e: any) => {
+        if (e !== null) {
+            this.escTarget = e.nativeEvent.target;
+        }
+        var newState = !this.state.navigationWindowOpened;
+        this.setState({ navigationWindowOpened: newState });
+        if (!newState && this.escTarget) {
+            this.escTarget.focus();
+        }
+    };
 
     public render() {
         const languages = configGetAll().translations.languages;
         const { topActions } = this.props;
         return (
-            <div className="w-panel-container w-backoffice-panel" ref={(container) => (this.container = container)}>
-                {!this.state.onlyBody && (
-                    <div className="w-panel-top">
-                        <div className="app-icon" onClick={this.handleAppIconClicked}>
-                            <i
-                                className={
-                                    "ms-Icon ms-Icon--" +
-                                    (this.state.layout != "mobile" ? this.props.icon : "CollapseMenu")
-                                }
-                            />
-                        </div>
-                        <div className="app-title">{this.props.title}</div>
+            <HotKeys
+                handlers={{
+                    X: this.hideGlobalMenu,
+                }}
+                keyMap={{
+                    X: "esc",
+                }}
+            >
+                <ObserveKeys only={["esc"]}>
+                    <div
+                        className="w-panel-container w-backoffice-panel"
+                        ref={(container) => (this.container = container)}
+                        tabIndex={0}
+                    >
+                        {!this.state.onlyBody && (
+                            <div className="w-panel-top">
+                                <div className="app-icon" onClick={this.handleAppIconClicked}>
+                                    <i
+                                        className={
+                                            "ms-Icon ms-Icon--" +
+                                            (this.state.layout != "mobile" ? this.props.icon : "CollapseMenu")
+                                        }
+                                    />
+                                </div>
+                                <div className="app-title">{this.props.title}</div>
 
-                        {!PRODUCTION && this.props.isSub == false && (
-                            <React.Suspense fallback={<>...</>}>
-                                <DebugTool />
-                            </React.Suspense>
-                        )}
+                                {!PRODUCTION && this.props.isSub == false && (
+                                    <React.Suspense fallback={<>...</>}>
+                                        <DebugTool />
+                                    </React.Suspense>
+                                )}
 
-                        <div className="app-user" onClick={() => this.setState({ userMenuVisible: true })}>
-                            <div className="app-user-icon">
-                                <Icon name="Contact" />
-                            </div>
-                            {this.props.user.login}
-                        </div>
-                        <div className="app-lang-change">
-                            {languages.map((lang: string) => (
-                                <a
-                                    key={lang}
-                                    onClick={() => {
-                                        fI18n.changeLanguage(lang, () => this.forceUpdate());
-                                    }}
+                                <div className="app-user" onClick={() => this.setState({ userMenuVisible: true })}>
+                                    <div className="app-user-icon">
+                                        <Icon name="Contact" />
+                                    </div>
+                                    {this.props.user.login}
+                                </div>
+                                <div className="app-lang-change">
+                                    {languages.map((lang: string) => (
+                                        <a
+                                            key={lang}
+                                            onClick={() => {
+                                                fI18n.changeLanguage(lang, () => this.forceUpdate());
+                                            }}
+                                        >
+                                            {lang}
+                                        </a>
+                                    ))}
+                                </div>
+                                {topActions.length > 0 && (
+                                    <div className="w-backoffice-panel-top-actions">
+                                        {topActions.map((action: ICommand) => {
+                                            return (
+                                                <div key={action.key} onClick={(ev) => action.onClick(ev, null)}>
+                                                    <Icon name={action.icon} /> {action.label}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                <Modal
+                                    show={this.state.userMenuVisible}
+                                    animation={"perspectiveBounce"}
+                                    top={50}
+                                    right={0}
+                                    onHide={() => this.setState({ userMenuVisible: false })}
                                 >
-                                    {lang}
-                                </a>
-                            ))}
-                        </div>
-                        {topActions.length > 0 && (
-                            <div className="w-backoffice-panel-top-actions">
-                                {topActions.map((action: ICommand) => {
-                                    return (
-                                        <div key={action.key} onClick={(ev) => action.onClick(ev, null)}>
-                                            <Icon name={action.icon} /> {action.label}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        <Modal
-                            show={this.state.userMenuVisible}
-                            animation={"perspectiveBounce"}
-                            top={50}
-                            right={0}
-                            onHide={() => this.setState({ userMenuVisible: false })}
-                        >
-                            <div style={{ width: 200 }} />
-                            <div style={{ padding: 10 }}>
-                                {/*<a onClick={() => {
+                                    <div style={{ width: 200 }} />
+                                    <div style={{ padding: 10 }}>
+                                        {/*<a onClick={() => {
                             store.changeView('access/users/account');
                             this.setState({userMenuVisible: false});
                         }}><Icon name="Accounts"/> Twoje konto</a>*/}
-                            </div>
-                            <div style={{ padding: 10 }}>
-                                <a href={Comm.basePath + "/access/logout"}>
-                                    <Icon name="SignOut" /> {fI18n.t("frontend:logout")}
-                                </a>
-                            </div>
-                        </Modal>
-                    </div>
-                )}
-                <div className={"w-panel-body-container" + (this.props.isSub ? " w-panel-body-container-inner" : "")}>
-                    {this.state.menuVisible && !this.state.onlyBody && (
-                        <div className="w-panel-menu">
-                            <Menu
-                                elements={this.props.menu}
-                                onMenuElementClick={this.handleNavigateTo}
-                                mobile={this.state.layout == "mobile"}
-                            />
-                        </div>
-                    )}
-                    <div className="w-panel-body" style={{ position: "relative" }}>
-                        {!PRODUCTION && this.props.isSub == false && <DebugCommLog />}
-                        {this.state.openedWindows.map((el, index) => {
-                            return (
-                                <Modal
-                                    key={index}
-                                    {...el.modalProps}
-                                    onHide={() => {
-                                        if (el.modalProps.onHide !== undefined) {
-                                            el.modalProps.onHide();
-                                        }
-                                        this.handleCloseWindow(el.route);
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: el.modalProps.width ? "auto" : "90vw",
-
-                                            backgroundColor: "#ECECEC",
-                                        }}
-                                    >
-                                        <BackOfficeContainer
-                                            route={el.route}
-                                            props={el.props}
-                                            parentContext={this.getContext()}
-                                        />
+                                    </div>
+                                    <div style={{ padding: 10 }}>
+                                        <a href={Comm.basePath + "/access/logout"}>
+                                            <Icon name="SignOut" /> {fI18n.t("frontend:logout")}
+                                        </a>
                                     </div>
                                 </Modal>
-                            );
-                        })}
-                        {this.state.contextState.isPackageCompiling && (
-                            <Modal show={true}>
-                                <div>
-                                    <LoadingIndicator text={"Webpack compilation in progress"} />
+                            </div>
+                        )}
+                        <div
+                            className={
+                                "w-panel-body-container" + (this.props.isSub ? " w-panel-body-container-inner" : "")
+                            }
+                        >
+                            {this.state.menuVisible && !this.state.onlyBody && (
+                                <div className="w-panel-menu">
+                                    <Menu
+                                        elements={this.props.menu}
+                                        onMenuElementClick={this.handleNavigateTo}
+                                        mobile={this.state.layout == "mobile"}
+                                    />
+                                </div>
+                            )}
+                            <div className="w-panel-body" style={{ position: "relative" }}>
+                                {!PRODUCTION && this.props.isSub == false && <DebugCommLog />}
+                                {this.state.openedWindows.map((el, index) => {
+                                    return (
+                                        <Modal
+                                            key={index}
+                                            {...el.modalProps}
+                                            onHide={() => {
+                                                if (el.modalProps.onHide !== undefined) {
+                                                    el.modalProps.onHide();
+                                                }
+                                                this.handleCloseWindow(el.route);
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    width: el.modalProps.width ? "auto" : "90vw",
+
+                                                    backgroundColor: "#ECECEC",
+                                                }}
+                                            >
+                                                <BackOfficeContainer
+                                                    route={el.route}
+                                                    props={el.props}
+                                                    parentContext={this.getContext()}
+                                                />
+                                            </div>
+                                        </Modal>
+                                    );
+                                })}
+                                {this.state.contextState.isPackageCompiling && (
+                                    <Modal show={true}>
+                                        <div>
+                                            <LoadingIndicator text={"Webpack compilation in progress"} />
+                                        </div>
+                                    </Modal>
+                                )}
+                                <PanelComponentLoader
+                                    ref={this.panelLoader}
+                                    context={{
+                                        ...this.state.contextState,
+                                        changeView: this.store.changeView,
+                                        onViewLoad: this.store.onViewLoad,
+                                        onViewLoaded: this.store.onViewLoaded,
+                                    }}
+                                    onLoadStart={this.handleLoadStart}
+                                    onLoadEnd={this.handleLoadEnd}
+                                    setPanelOption={this.handleSetPanelOption}
+                                    openModal={this.handleOpenWindow}
+                                    changeView={this.handleChangeView}
+                                    closeModal={this.handleCloseWindow}
+                                    isSub={this.props.isSub}
+                                    parentContext={this.props.parentContext}
+                                />
+                            </div>
+                        </div>
+                        {this.state.navigationWindowOpened && (
+                            <Modal show={true} onHide={() => this.hideGlobalMenu(null)} top={200}>
+                                <div style={{ width: 300 }}>
+                                    <Select
+                                        onClose={() => this.hideGlobalMenu(null)}
+                                        options={this.props.menu.reduce((p, c) => {
+                                            return p.concat(
+                                                c.elements.map((el) => {
+                                                    return { label: c.title + " -> " + el.title, value: el.route };
+                                                }),
+                                            );
+                                        }, [])}
+                                        value={null}
+                                        autoFocus={true}
+                                        mode="list"
+                                        onChange={(e) => {
+                                            this.hideGlobalMenu(null);
+
+                                            this.handleNavigateTo({
+                                                title: "---",
+                                                route: e.value,
+                                                icon: null,
+                                            });
+                                        }}
+                                    />
                                 </div>
                             </Modal>
                         )}
-                        <PanelComponentLoader
-                            ref={this.panelLoader}
-                            context={{
-                                ...this.state.contextState,
-                                changeView: this.store.changeView,
-                                onViewLoad: this.store.onViewLoad,
-                                onViewLoaded: this.store.onViewLoaded,
-                            }}
-                            onLoadStart={this.handleLoadStart}
-                            onLoadEnd={this.handleLoadEnd}
-                            setPanelOption={this.handleSetPanelOption}
-                            openModal={this.handleOpenWindow}
-                            changeView={this.handleChangeView}
-                            closeModal={this.handleCloseWindow}
-                            isSub={this.props.isSub}
-                            parentContext={this.props.parentContext}
-                        />
+                        <div id="modal-root"></div>
                     </div>
-                </div>
-                {this.state.navigationWindowOpened && (
-                    <Modal show={true} onHide={() => this.setState({ navigationWindowOpened: false })} top={200}>
-                        <div style={{ width: 300 }}>
-                            <Select
-                                onClose={() => this.setState({ navigationWindowOpened: false })}
-                                options={this.props.menu.reduce((p, c) => {
-                                    return p.concat(
-                                        c.elements.map((el) => {
-                                            return { label: c.title + " -> " + el.title, value: el.route };
-                                        }),
-                                    );
-                                }, [])}
-                                value={null}
-                                autoFocus={true}
-                                mode="list"
-                                onChange={(e) => {
-                                    this.setState({
-                                        navigationWindowOpened: false,
-                                    });
-
-                                    this.handleNavigateTo({
-                                        title: "---",
-                                        route: e.value,
-                                        icon: null,
-                                    });
-                                }}
-                            />
-                        </div>
-                    </Modal>
-                )}
-            </div>
+                </ObserveKeys>
+            </HotKeys>
         );
     }
 }

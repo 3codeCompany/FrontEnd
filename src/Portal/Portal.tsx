@@ -14,7 +14,6 @@ export class Portal extends React.PureComponent<IPortalProps> {
 
     constructor(props: IPortalProps) {
         super(props);
-
         this.el = document.createElement("div");
     }
 

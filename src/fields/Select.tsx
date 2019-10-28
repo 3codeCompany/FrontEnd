@@ -1,7 +1,6 @@
 import * as React from "react";
 
 // @ts-ignore
-import Hotkeys from "react-hot-keys";
 
 import { Positioner, RelativePositionPresets } from "../Positioner";
 
@@ -16,7 +15,8 @@ import { IFieldChangeEvent, IFieldProps, IOption } from "./Interfaces";
 import { Icon } from "../Icon";
 import { fI18n } from "../lib";
 import { toOptions } from "./Utils";
-import { HotkeysEvent } from "hotkeys-js";
+import { HotKeys, ObserveKeys } from "react-hotkeys";
+import { KeyboardEventHandler } from "react";
 
 interface ISelectChangeEvent extends IFieldChangeEvent {
     selectedIndex: number;
@@ -165,8 +165,12 @@ export class Select extends React.Component<ISelectProps, ISelectState> {
         this.handleChange(null);
     };
 
+    /*    private onKeyDown = (handler: KeyboardEventHandler<HotKeys>) => {
 
-    private onKeyDown = (keyName: string, e: KeyboardEvent, handle: HotkeysEvent) => {
+        console.log(handler.nativeEvent);
+        console.log("cały czas tutaj");
+
+        return;
         e.preventDefault();
         if (keyName == "up") {
             this.setState({ highlightedIndex: Math.max(0, this.state.highlightedIndex - 1) });
@@ -189,7 +193,7 @@ export class Select extends React.Component<ISelectProps, ISelectState> {
             this.dynamicList.scrollToItem(this.state.highlightedIndex);
             this.dynamicList.forceUpdate();
         }
-    };
+    };*/
 
     private searchTextChanged = (e: any) => {
         let filteredOptions: IOption[];
@@ -224,7 +228,6 @@ export class Select extends React.Component<ISelectProps, ISelectState> {
 
     private renderRow = React.forwardRef(({ index, style }: any, ref) => {
         const el = this.state.filteredOptions[index];
-
         return (
             <div
                 style={style}
@@ -255,29 +258,82 @@ export class Select extends React.Component<ISelectProps, ISelectState> {
             options.length > this.props.minLengthToShowSearchField && this.props.showSearchField ? 35 : 0;
 
         return (
-            <Hotkeys keyName="up,down,enter,esc" onKeyDown={this.onKeyDown} filter={(event: any) => true}>
-                {options.length > this.props.minLengthToShowSearchField && this.props.showSearchField && (
-                    <input
-                        ref={(el) => (this.searchField = el)}
-                        type={"text"}
-                        className={"form-control"}
-                        onChange={this.searchTextChanged}
-                        value={this.state.searchedTxt}
-                    />
-                )}
-                <AutoSizer>
-                    {({ width, height }: any) => (
-                        <DynamicSizeList
-                            height={height - heightDiff /*- input height*/}
-                            itemCount={this.state.filteredOptions.length}
-                            width={width}
-                            ref={(el: any) => (this.dynamicList = el)}
-                        >
-                            {this.renderRow}
-                        </DynamicSizeList>
+            <HotKeys
+                keyMap={{
+                    ESC: "esc",
+                    UP: "up",
+                    DOWN: "ArrowDown",
+                    ENTER: "enter",
+                }}
+                handlers={{
+                    ESC: (x) => {
+                        if (this.props.mode === "dropdown") {
+                            this.handleDropdownChange();
+                        } else {
+                            if (this.props.onClose) {
+                                this.props.onClose();
+                            }
+                        }
+                        return true;
+                    },
+                    UP: () => {
+                        console.log("up");
+                        this.setState({ highlightedIndex: Math.max(0, this.state.highlightedIndex - 1) }, () => {
+                            this.dynamicList.scrollToItem(this.state.highlightedIndex);
+                            this.dynamicList.forceUpdate();
+                        });
+                    },
+                    DOWN: () => {
+                        console.log("down");
+                        this.setState(
+                            {
+                                highlightedIndex: Math.min(
+                                    this.state.filteredOptions.length - 1,
+                                    this.state.highlightedIndex + 1,
+                                ),
+                            },
+                            () => {
+                                this.dynamicList.scrollToItem(this.state.highlightedIndex);
+                                this.dynamicList.forceUpdate();
+                            },
+                        );
+                    },
+                    ENTER: () => {
+                        const el = this.state.filteredOptions[this.state.highlightedIndex];
+                        if (el !== undefined) {
+                            this.handleChange(el.value);
+
+                            this.handleDropdownChange();
+                        }
+                    },
+                }}
+            >
+                <ObserveKeys only={["esc", "enter", "up", "down"]}>
+                    {options.length > this.props.minLengthToShowSearchField && this.props.showSearchField && (
+                        <input
+                            ref={(el) => (this.searchField = el)}
+                            type={"text"}
+                            className={"form-control"}
+                            onChange={this.searchTextChanged}
+                            value={this.state.searchedTxt}
+                        />
                     )}
-                </AutoSizer>
-            </Hotkeys>
+                    <div style={{ height: 400 }}>
+                        <AutoSizer>
+                            {({ width, height }: any) => (
+                                <DynamicSizeList
+                                    height={height - heightDiff /*- input height*/}
+                                    itemCount={this.state.filteredOptions.length}
+                                    width={width}
+                                    ref={(el: any) => (this.dynamicList = el)}
+                                >
+                                    {this.renderRow}
+                                </DynamicSizeList>
+                            )}
+                        </AutoSizer>
+                    </div>
+                </ObserveKeys>
+            </HotKeys>
         );
     };
 
