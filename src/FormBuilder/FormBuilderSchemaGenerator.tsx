@@ -276,7 +276,7 @@ class ErrorBoundary extends React.Component<any, any> {
         this.state = { hasError: false, error: null };
     }
 
-    public componentWillReceiveProps() {
+    public UNSAFE_componentWillReceiveProps() {
         this.setState({ hasError: false });
     }
 

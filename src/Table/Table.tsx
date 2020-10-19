@@ -340,7 +340,7 @@ export class Table extends React.Component<ITableProps, ITableState> {
         return should;
     }*/
 
-    public componentWillReceiveProps(nextProps: ITableProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: ITableProps) {
         const columns = [...nextProps.columns];
         const preparedColumns: IColumnData[] = [];
         for (const i in columns) {

@@ -79,7 +79,7 @@ export class Modal extends React.PureComponent<IModalProps> {
         }
     };
 
-    public componentWillReceiveProps(nextProps: IModalProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: IModalProps) {
         if (this.props.show == false && nextProps.show == true) {
             this.handleShow();
         }

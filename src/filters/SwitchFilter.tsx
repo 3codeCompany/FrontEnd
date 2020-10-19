@@ -27,7 +27,7 @@ export default class SwitchFilter extends AbstractFilter<ISwitchFilterProps> {
         this.state = { value: props.value ? props.value.value : null };
     }
 
-    public componentWillReceiveProps(nextProps: ISwitchFilterProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: ISwitchFilterProps) {
         this.setState({
             value: nextProps.value ? nextProps.value.value : null,
         });

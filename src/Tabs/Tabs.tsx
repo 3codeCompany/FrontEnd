@@ -49,7 +49,7 @@ export class Tabs extends React.Component<ITabsProps, ITabsState> {
         }
     }
 
-    public componentWillReceiveProps(nextProps: Readonly<ITabsProps>, nextContext: any): void {
+    public UNSAFE_componentWillReceiveProps(nextProps: Readonly<ITabsProps>, nextContext: any): void {
         if (nextProps.activeTab != null) {
             this.setState({ currentTab: nextProps.activeTab });
         }

@@ -30,7 +30,7 @@ export class FilterPanel extends React.Component<IFilterPanelProps, IFilterPanel
         }
     };
 
-    public componentWillReceiveProps(nextProps: IFilterPanelProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: IFilterPanelProps) {
         this.setState({ value: nextProps.filters });
     }
 

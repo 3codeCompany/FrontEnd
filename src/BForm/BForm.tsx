@@ -162,7 +162,7 @@ export class BForm extends React.Component<IBFormProps, IBFormState> {
         this.forceUpdate();
     }
 
-    public componentWillReceiveProps(nextProps: IBFormProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: IBFormProps) {
         if (nextProps.data) {
             this.setState({ data: nextProps.data });
         }

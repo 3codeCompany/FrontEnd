@@ -60,7 +60,7 @@ export default class DateFilter extends AbstractFilter<IDateFilterProps> {
         });
     }
 
-    public componentWillReceiveProps(nextProps: IDateFilterProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: IDateFilterProps) {
         this.setState({
             choiceType: nextProps.value ? this.choiceTypes[nextProps.value.condition] : "range",
         });

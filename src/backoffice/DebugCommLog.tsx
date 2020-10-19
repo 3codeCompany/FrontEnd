@@ -10,6 +10,8 @@ import styles from "./DebugCommLog.module.sass";
 import { Modal } from "../Modal";
 
 export default () => {
+
+
     const [log, setLog] = useState([...BackofficeStore.debugLog].reverse());
     const [inspectingValue, setInspectingValue] = useState(null);
     const [isExpanded, setExpanded] = useState(true);
@@ -57,8 +59,8 @@ export default () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {log.map((el) => (
-                            <RouteInfo key={el.url + el.time} info={el} setInspectingValue={setInspectingValue} />
+                        {log.map((el, index) => (
+                            <RouteInfo key={el.url + el.time + index} info={el} setInspectingValue={setInspectingValue} />
                         ))}
                     </tbody>
                 </table>
@@ -81,6 +83,7 @@ const RouteInfo = ({
     info: IDebugDataEntry;
     setInspectingValue: (value: string) => any;
 }) => {
+
     const [doing, setDoing] = useState("");
 
     const [isConnectingWithIDE, setIsConnectingWithIDE] = useState("");

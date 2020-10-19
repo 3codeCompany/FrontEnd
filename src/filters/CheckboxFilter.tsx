@@ -46,7 +46,7 @@ export default class CheckboxFilter extends AbstractFilter<ISelectFilterProps> {
         };
     }
 
-    public componentWillReceiveProps(nextProps: ISelectFilterProps) {
+    public UNSAFE_componentWillReceiveProps(nextProps: ISelectFilterProps) {
         let value: any = [];
         if (nextProps.value) {
             value = nextProps.value;
