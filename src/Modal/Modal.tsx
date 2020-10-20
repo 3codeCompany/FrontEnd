@@ -171,7 +171,9 @@ export class Modal extends React.PureComponent<IModalProps> {
                                     {p.icon && <Icon name={p.icon} />} {p.title}
                                 </div>
                             )}
-                            {this.props.show ? p.children : null}
+                            <div style={{ height: p.title ? "calc( 100% - 31px )" : "auto" }}>
+                                {this.props.show ? p.children : null}
+                            </div>
                         </div>
                     </HotKeys>
                 </Positioner>

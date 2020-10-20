@@ -38,7 +38,7 @@ interface IBackOfficePanelProps {
     menu?: IMenuSection[];
     store?: BackofficeStore;
     parentContext?: IPanelContext;
-    topActions?: ICommand[];
+    topActions?: ({ component?: any } & ICommand)[];
 }
 
 interface IBackOfficePanelState {
@@ -128,8 +128,6 @@ export class BackOfficePanel extends React.Component<IBackOfficePanelProps, IBac
             this.handleOpenWindow(element.route, {}, { title: element.title, showHideLink: true, top: 55 });
         } else {
             window.location.hash = element.route;
-            //alert(element.route);
-            //this.store.changeView(element.route);
         }
         if (this.state.layout == "mobile") {
             this.setState({ menuVisible: false });
@@ -254,7 +252,7 @@ export class BackOfficePanel extends React.Component<IBackOfficePanelProps, IBac
 
     public render() {
         const languages = configGetAll().translations.languages;
-        const { topActions } = this.props;
+
         return (
             <HotKeys
                 actions={[
@@ -303,12 +301,21 @@ export class BackOfficePanel extends React.Component<IBackOfficePanelProps, IBac
                                     </a>
                                 ))}
                             </div>
-                            {topActions.length > 0 && (
+                            {this.props.topActions.length > 0 && (
                                 <div className="w-backoffice-panel-top-actions">
-                                    {topActions.map((action: ICommand) => {
+                                    {this.props.topActions.map((action) => {
+                                        const Component = action.component;
                                         return (
                                             <div key={action.key} onClick={(ev) => action.onClick(ev, null)}>
-                                                <Icon name={action.icon} /> {action.label}
+                                                {Component !== undefined && Component !== null ? (
+                                                    <>
+                                                        <Component />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Icon name={action.icon} /> {action.label}
+                                                    </>
+                                                )}
                                             </div>
                                         );
                                     })}
