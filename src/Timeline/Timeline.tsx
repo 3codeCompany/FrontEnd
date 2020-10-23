@@ -29,32 +29,32 @@ class Timeline extends React.Component<ITimelineProps> {
         const p = this.props;
         return (
             <div className="w-timeline">
-                <ul>
-                    {p.children.map((child: Array<React.StatelessComponent<ITimelineItemProps>>, index: number) => {
-                        // todo zmienić struktórę
-                        // @ts-ignore
-                        const props: ITimelineItemProps = child.props;
-                        const icon = typeof props.icon == "function" ? props.icon(props) : props.icon;
-                        return (
-                            <li key={index}>
-                                {index + 1 < p.children.length && <div className="tail" />}
+                {p.children.map((child: Array<React.StatelessComponent<ITimelineItemProps>>, index: number) => {
+                    // todo zmienić struktórę
+                    // @ts-ignore
+                    const props: ITimelineItemProps = child.props;
+                    const icon = typeof props.icon == "function" ? props.icon(props) : props.icon;
+                    return (
+                        <div key={props.time}>
+                            {/*{index + 1 < p.children.length && <div className="tail" />}*/}
+                            <div>
                                 <div
                                     className={
                                         "head " + props.color + (icon ? " ms-Icon ms-Icon--" + icon : " head-circle")
                                     }
                                 />
-                                <div className="content">
-                                    <p className="content-head">
-                                        {props.time}
-                                        {props.user && <span className="user">[{props.user}]</span>}
-                                        {props.action && <span className="action">{props.action}</span>}
-                                    </p>
-                                    {child}
+                            </div>
+                            <div className="content">
+                                <div className="content-head">
+                                    {props.time}
+                                    {props.user && <span className="user">[{props.user}]</span>}
+                                    {props.action && <span className="action">{props.action}</span>}
                                 </div>
-                            </li>
-                        );
-                    })}
-                </ul>
+                                {child}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         );
     }
