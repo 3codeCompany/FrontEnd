@@ -35,24 +35,36 @@ class Timeline extends React.Component<ITimelineProps> {
                     const props: ITimelineItemProps = child.props;
                     const icon = typeof props.icon == "function" ? props.icon(props) : props.icon;
                     return (
-                        <div key={props.time}>
-                            {/*{index + 1 < p.children.length && <div className="tail" />}*/}
-                            <div>
-                                <div
-                                    className={
-                                        "head " + props.color + (icon ? " ms-Icon ms-Icon--" + icon : " head-circle")
-                                    }
-                                />
-                            </div>
-                            <div className="content">
-                                <div className="content-head">
-                                    {props.time}
-                                    {props.user && <span className="user">[{props.user}]</span>}
-                                    {props.action && <span className="action">{props.action}</span>}
+                        <>
+                            <div key={props.time + props.action}>
+                                {/*{index + 1 < p.children.length && <div className="tail" />}*/}
+                                <div>
+                                    <div
+                                        className={
+                                            "head " +
+                                            props.color +
+                                            (icon ? " ms-Icon ms-Icon--" + icon : " head-circle")
+                                        }
+                                    />
                                 </div>
-                                {child}
+                                <td className="content">
+                                    <div className="content-head">{props.time}</div>
+                                </td>
+                                <td className="content">
+                                    <div className="content-head">
+                                        {props.user && <span className="user">[{props.user}]</span>}
+                                    </div>
+                                </td>
+                                <td className="content">
+                                    <div className="content-head">
+                                        {props.action && <span className="action">{props.action}</span>}
+                                    </div>
+                                </td>
                             </div>
-                        </div>
+                            <div>
+                                <td colSpan={4}>{child}</td>
+                            </div>
+                        </>
                     );
                 })}
             </div>
