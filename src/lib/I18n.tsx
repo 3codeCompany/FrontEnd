@@ -36,7 +36,7 @@ const XHR: BackendModule = {
 
 i18next.use(XHR).init(
     {
-        lng: "en",
+        lng: window.reactBackOfficeVar.panel.language, //"en",
         fallbackLng: config.translations.defaultLanguage,
         debug: false,
         /*resources: {
