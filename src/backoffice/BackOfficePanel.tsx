@@ -294,7 +294,12 @@ export class BackOfficePanel extends React.Component<IBackOfficePanelProps, IBac
                                     <a
                                         key={lang}
                                         onClick={() => {
-                                            fI18n.changeLanguage(lang, () => this.forceUpdate());
+                                            fI18n.changeLanguage(lang, () => {
+                                                Comm._get("/language/set/" + lang).then(() => {
+                                                    window.location.reload();
+                                                });
+                                                //this.forceUpdate();
+                                            });
                                         }}
                                     >
                                         {lang}
