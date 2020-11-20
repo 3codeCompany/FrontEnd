@@ -71,7 +71,7 @@ export default class Footer extends React.Component<any, any> {
                     <div className="w-table-footer-onpage-select">
                         <span>{__("Na stronie")}: </span>
                         <select value={props.onPage} onChange={(e) => props.onPageChanged(parseInt(e.target.value))}>
-                            {[10, 25, 50, 100, 500].map((x, i) => (
+                            {[10, 25, 50, 100, 200, 300, 400, 500].map((x, i) => (
                                 <option key={"onpageval" + x} value={x}>
                                     {x}
                                 </option>
