@@ -34,8 +34,10 @@ const XHR: BackendModule = {
     },
 };
 
+
 i18next.use(XHR).init(
     {
+        // @ts-ignore
         lng: window.reactBackOfficeVar.panel.language, //"en",
         fallbackLng: config.translations.defaultLanguage,
         debug: false,
