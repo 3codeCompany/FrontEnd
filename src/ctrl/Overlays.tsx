@@ -320,6 +320,7 @@ export class Portal extends React.Component<any, any> {
 
 interface IConfirmModalProps extends IModalProps {
     showCancelLing?: boolean;
+    messageColor?: string;
 }
 
 class ConfirmModal extends React.Component<IConfirmModalProps, any> {
@@ -386,7 +387,7 @@ const confirm = async (message, options: Partial<IConfirmModalProps> = {}) => {
 
     const x: any = (
         <ConfirmModal {...props} onOk={resolver} cleanup={cleanup}>
-            <div>{message}</div>
+            <div style={{color: props.messageColor}}>{message}</div>
         </ConfirmModal>
     );
 
