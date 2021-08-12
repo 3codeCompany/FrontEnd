@@ -5,10 +5,11 @@ import {
     Date,
     File,
     Select,
-    Switch,
     Text,
+    Switch,
     Textarea,
     Wysiwyg,
+    Color
 } from "../ctrl/Fields";
 import { FileList } from "../ctrl/FileLists";
 import { Shadow } from "../ctrl/Overlays";
@@ -507,6 +508,8 @@ const BWysiwig = withBootstrapFormField(Wysiwyg);
 const BConnectionsField = withBootstrapFormField(ConnectionsField);
 const BFileList = withBootstrapFormField(FileList);
 const BContainer = withBootstrapFormField((props) => <div>{props.children}</div>);
+const BColor = withBootstrapFormField(Color);
+
 
 export {
     BForm,
@@ -521,5 +524,6 @@ export {
     BConnectionsField,
     BFileList,
     BContainer,
+    BColor,
     withBootstrapFormField as withBootstrapFormField,
 };

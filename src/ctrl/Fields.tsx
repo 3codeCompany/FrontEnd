@@ -970,4 +970,66 @@ class File extends React.Component<IFileProps, any> {
     }
 }
 
-export {Text, Select, Switch, CheckboxGroup, Textarea, Date, File, Wysiwyg, ConnectionsField};
+
+interface IColorProps extends IFieldProps {
+    type?: "color";
+    value?: string;
+    onKeyDown?: any;
+    valueVisible?: any;
+}
+
+class Color extends React.Component<IColorProps, any> {
+    public static defaultProps: Partial<IColorProps> = {
+        value: "",
+        editable: true,
+        type: "color",
+        autoFocus: false,
+        valueVisible: false,
+    };
+
+    public handleOnChange(e) {
+        if (this.props.onChange) {
+            this.props.onChange({
+                name: this.props.name,
+                type: "color",
+                value: e.target.value,
+                event: e,
+            });
+        }
+    }
+
+    public componentDidMount() {
+        // const $input_elem = ReactDOM.findDOMNode(this.refs.field);
+        // Inputmask('9-a{1,3}9{1,3}').mask($input_elem);
+    }
+
+    public render() {
+        const props = this.props;
+        return (
+            <div>
+                <input
+                    className={props.className}
+                    name={props.name}
+                    type={props.type}
+                    value={props.value === null ? "" : props.value}
+                    onChange={this.handleOnChange.bind(this)}
+                    placeholder={props.placeholder}
+                    disabled={props.disabled}
+                    style={props.style}
+                    autoFocus={props.autoFocus}
+                    onKeyDown={props.onKeyDown}
+                />
+                {props.valueVisible &&
+                <div style={{paddingTop: "0.3em"}}>
+                        <span style={{
+                            fontSize: "1em",
+                            color: (props.value === 'null' || props.value === null) ? "red": ""
+                        }}>{(props.value === 'null' || props.value === null) ? "No color selected" : props.value}</span>
+                </div>
+                }
+            </div>
+        );
+    }
+}
+
+export {Text, Select, Switch, CheckboxGroup, Textarea, Date, File, Wysiwyg, ConnectionsField, Color};
