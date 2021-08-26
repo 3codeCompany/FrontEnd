@@ -111,13 +111,13 @@ class DateFilter extends Filter {
                             return false
                         }}
                         onPrevMonthClick={(e) => {
-                            e.preventDefault();
+
                             this.props.container.focus();
                             setTimeout(() => {
                                 this.props.container.focus();
                             }, 250)
                         }}
-                        onNextMonthClick={() => {
+                        onNextMonthClick={(e) => {
                             this.props.container.focus();
                             setTimeout(() => {
                                 this.props.container.focus();
@@ -528,7 +528,7 @@ const withFilterOpenLayer = (Filter) => {
                 if (!currentTarget.contains(document.activeElement)) {
                     this.setState({show: false})
                 }
-            }, 50);
+            }, 350);
         }
 
         render() {
