@@ -8,7 +8,7 @@
         [
             "@babel/proposal-class-properties",
             {
-                "loose": true
+                "loose": false
             }
         ],
         "@babel/proposal-object-rest-spread",

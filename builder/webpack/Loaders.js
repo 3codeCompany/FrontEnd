@@ -17,7 +17,7 @@ var getLoaders = function(production, input) {
         "@babel/plugin-proposal-optional-chaining",
         "@babel/plugin-proposal-nullish-coalescing-operator",
         ["@babel/plugin-proposal-decorators", { legacy: true }],
-        ["@babel/proposal-class-properties", { loose: true }],
+        ["@babel/proposal-class-properties", { loose: false }],
 
     ];
 
