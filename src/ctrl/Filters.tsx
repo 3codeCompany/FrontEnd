@@ -426,7 +426,7 @@ class NumericFilter extends AbstractFilter implements IFilterComponent {
 
     constructor(props) {
         super(props);
-        this.state = {option: "LIKE"};
+        this.state = {option: "=="};
     }
 
     public getValue() {
@@ -605,7 +605,7 @@ class TextFilter extends AbstractFilter implements IFilterComponent {
         super(props);
 
         this.state = {
-            option: props.value ? props.value.condition : "LIKE",
+            option: props.value ? props.value.condition : "==",
             searchText: props.value ? props.value.value : "",
         };
         this.options = {
