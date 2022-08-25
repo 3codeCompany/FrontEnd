@@ -81,10 +81,7 @@ var getLoaders = function(production, input) {
 
                 use: [
                     !production ? "style-loader" : MiniCssExtractPlugin.loader,
-                    {
-                        loader: "@teamsupercell/typings-for-css-modules-loader",
-                        options: {},
-                    },
+                    
                     { loader: "css-loader", options: { sourceMap: !production, modules: true } },
                     { loader: "resolve-url-loader", options: { sourceMap: !production } },
                     //'postcss-loader',
