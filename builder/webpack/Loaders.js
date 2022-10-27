@@ -89,7 +89,8 @@ var getLoaders = function(production, input) {
                         loader: "sass-loader",
                         options: {
                             sourceMap: !production,
-                            sassOptions: { includePaths: ["node_modules"] },
+                            sassOptions: { includePaths: ["node_modules"], quietDeps: true },
+
                         },
                     },
                 ],
