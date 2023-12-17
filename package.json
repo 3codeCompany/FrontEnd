@@ -9,14 +9,14 @@
         "build:babel": "babel --extensions .ts,.tsx --source-maps inline -d ./lib ./src",
         "babel-watch": "babel --watch --extensions .ts,.tsx --source-maps inline -d ./lib ./src & tsc --watch --emitDeclarationOnly --project ./ --outDir ./lib",
         "build:tsc": "tsc --emitDeclarationOnly --project ./ --outDir ./lib ",
-        "rebuild": "rimraf lib/* && yarn run build:babel  && yarn run build:tsc",
-        "postinstall": "rimraf lib/* && yarn run build:babel ",
-        "prepare": "yarn run build:tsc",
+        "rebuild": "rimraf lib/* && npm run build:babel  && npm run build:tsc",
+        "postinstall": "rimraf lib/* && npm run build:babel ",
+        "prepare": "npm run build:tsc",
         "storybook": "start-storybook -c ./docs/stories/.storybook -s ./stories/public_assets -p 6006",
         "server": "nodemon ./stories/server.js",
-        "website:build-all": "rimraf ./website-build && yarn run website:build-storybook && yarn run website:build-wiki && yarn run website:build-api-doc && yarn run website:build-page",
+        "website:build-all": "rimraf ./website-build && npm run website:build-storybook && npm run website:build-wiki && npm run website:build-api-doc && npm run website:build-page",
         "website:build-storybook": "build-storybook -c ./docs/stories/.storybook -o ./website-build/storybook",
-        "website:build-api-doc": "yarn run typedoc --out website-build/api src",
+        "website:build-api-doc": "npm run typedoc --out website-build/api src",
         "website:build-page": "webpack-cli --config docs/website/webpack-server.config.js  && webpack-cli --env.production  --config docs/website/webpack.config.js",
         "website:build-wiki": "node --experimental-modules docs/wiki/build.js",
         "website:server-start": "node ./website-build/dist/server",
@@ -24,7 +24,7 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "yarn run rebuild"
+            "pre-commit": "npm run rebuild"
         }
     },
     "keywords": [],
@@ -74,10 +74,8 @@
         "i18next": "^19.3.2",
         "inputmask": "^5.0.3",
         "keyboardjs": "^2.4.1",
-        "markdown-it": "^11.0.0",
         "moment": "^2.19.4",
         "nanoid": "^3.1.10",
-        "nodemon": "^2.0.4",
         "nprogress": "^0.2.0",
         "office-ui-fabric-core": "7.1.0",
         "optimize-css-assets-webpack-plugin": "^5.0.3",
