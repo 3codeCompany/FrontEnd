@@ -5,7 +5,7 @@ import { IFieldChangeEvent } from "../fields";
 import { Shadow } from "../Shadow";
 import { ValidationError } from "./ValidationError";
 
-interface IBFormEvent {
+export interface IBFormEvent {
     form: BForm;
     inputEvent: React.FormEvent;
 }
@@ -154,13 +154,15 @@ export class BForm extends React.Component<IBFormProps, IBFormState> {
         console.log(response);
         console.log(response.fieldErrors);
 
-        this.setState({
-            fieldErrors: response.fieldErrors,
-            formErrors: response.formErrors || [],
-        }, () => {
-            console.log(this.state);
-
-        });
+        this.setState(
+            {
+                fieldErrors: response.fieldErrors,
+                formErrors: response.formErrors || [],
+            },
+            () => {
+                console.log(this.state);
+            },
+        );
 
         this.forceUpdate();
     }
@@ -185,7 +187,7 @@ export class BForm extends React.Component<IBFormProps, IBFormState> {
         }
 
         if (nextProps.errors) {
-            console.log("to jest pewnie to !!")
+            console.log("to jest pewnie to !!");
             this.setState({
                 fieldErrors: nextProps.errors.fieldErrors || new Map<string, string[]>(),
                 formErrors: nextProps.errors.formErrors || [],

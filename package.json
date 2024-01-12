@@ -68,6 +68,7 @@
         "@types/moment": "^2.13.0",
         "@types/nanoid": "^2.1.0",
         "@types/react-dates": "^17.1.10",
+        "@types/react-dom": "^18.2.18",
         "@types/react-i18next": "^8.1.0",
         "@types/react-notification-system": "^0.2.39",
         "@types/react-virtualized-auto-sizer": "^1.0.0",
