@@ -1,7 +1,7 @@
 import i18next, { BackendModule } from "i18next";
 import langContainer from "./translation/LangContainer";
 
-import { configGetAll } from "../backoffice/Config";
+import { configGetAll } from "../_backoffice/Config";
 
 const config = configGetAll();
 

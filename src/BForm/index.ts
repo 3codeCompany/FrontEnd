@@ -1,4 +1,4 @@
-import { CheckboxGroup, Date, File, Select, Switch, Text, Textarea, Wysiwyg } from "../fields";
+import { CheckboxGroup, Date, File, Select, Switch, Text, Textarea } from "../fields";
 import { FileListField } from "../FileListField";
 
 import { withFormField } from "./WithFormField";
@@ -14,7 +14,6 @@ export const BSwitch = withFormField(Switch);
 export const BCheckboxGroup = withFormField(CheckboxGroup);
 export const BDate = withFormField(Date);
 export const BFile = withFormField(File);
-export const BWysiwig = withFormField(Wysiwyg);
 export const BConnectionsField = withFormField(ConnectionsField);
 export const BFileListField = withFormField(FileListField);
 

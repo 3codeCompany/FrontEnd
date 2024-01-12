@@ -36,14 +36,7 @@ let config: IConfig = {
             return baseUrl + path;
         },
         viewerRegistry: [
-            {
-                filter: /.(jpg|jpeg|png|gif)$/i,
-                viewer: import("../viewers/ImageViewer").then((m) => m.ImageViewer),
-            },
-            {
-                filter: /.(pdf)$/i,
-                viewer: import("../viewers/PDFViewer").then((m) => m.PDFViewer),
-            },
+
         ],
     },
 };

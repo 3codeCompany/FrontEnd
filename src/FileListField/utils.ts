@@ -1,4 +1,4 @@
-import { configGetAll } from "../backoffice/Config";
+import { configGetAll } from "../_backoffice/Config";
 import { IFile, IFileViewerProps } from "./FileListsField";
 
 export const globalTransformFilePath = configGetAll().files.transformFilePath;
@@ -20,16 +20,5 @@ export const formatBytes = (bytes: number) => {
 };
 
 export const getViewer = async (file: IFile): Promise<{ default: React.ComponentType<IFileViewerProps> }> => {
-    let ViewerComponent: React.ComponentType<IFileViewerProps> = null;
-    for (const element of configGetAll().files.viewerRegistry) {
-        if ((file.name && file.name.match(element.filter)) || file.path.match(element.filter)) {
-            ViewerComponent = await element.viewer;
-            break;
-        }
-    }
-    if (ViewerComponent === null) {
-        ViewerComponent = await import("../viewers/ImageViewer").then((m) => m.ImageViewer);
-    }
-
-    return { default: ViewerComponent };
+    return null
 };

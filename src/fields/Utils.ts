@@ -1,5 +1,5 @@
 import { IOption } from "./Interfaces";
-import { string } from "prop-types";
+
 
 export const checkIncludes = (options: any, value: string | number) => {
     const element = options.filter((el: IOption | string) => {

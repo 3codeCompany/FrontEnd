@@ -8,7 +8,6 @@ export * from "./Text";
 export * from "./Textarea";
 
 export * from "./Switch";
-export * from "./Wysiwyg";
 
 export * from "./CheckboxGroup";
 
