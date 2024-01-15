@@ -102,7 +102,7 @@ export type IApplyToFieldFn = (
 
 export class BForm extends React.Component<IBFormProps, IBFormState> {
     public formTag: HTMLElement;
-    private fieldsValues: {};
+    public fieldsValues: {};
 
     public static defaultProps: Partial<IBFormProps> = {
         layoutType: "default",
@@ -151,8 +151,6 @@ export class BForm extends React.Component<IBFormProps, IBFormState> {
         if (this.props.onValidatorError) {
             this.props.onValidatorError({ form: this, response });
         }
-        console.log(response);
-        console.log(response.fieldErrors);
 
         this.setState(
             {
@@ -160,7 +158,7 @@ export class BForm extends React.Component<IBFormProps, IBFormState> {
                 formErrors: response.formErrors || [],
             },
             () => {
-                console.log(this.state);
+                //console.log(this.state);
             },
         );
 
