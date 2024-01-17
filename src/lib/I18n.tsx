@@ -1,5 +1,4 @@
 import i18next, { BackendModule } from "i18next";
-import langContainer from "./translation/LangContainer";
 
 import { configGetAll } from "../_backoffice/Config";
 
@@ -11,14 +10,13 @@ const XHR: BackendModule = {
         /* use services and options */
     },
     read(language: string, namespace: string, callback: any) {
-        langContainer.get(language, (result: any) => {
-            if (result.lang[namespace] == undefined) {
-                callback("Undefined namespace", null);
-            } else {
-
-                callback(null, result.lang[namespace]);
-            }
-        });
+        // langContainer.get(language, (result: any) => {
+        //     if (result.lang[namespace] == undefined) {
+        //         callback("Undefined namespace", null);
+        //     } else {
+        //         callback(null, result.lang[namespace]);
+        //     }
+        // });
     },
     readMulti(languages: string[], namespace: string[], callback: any) {
         throw new Error("Unsupported I18n readMulti");
@@ -55,4 +53,4 @@ i18next.use(XHR).init(
 
 // const fI18n = instance;
 
-export { i18next as fI18n, langContainer };
+export { i18next as fI18n };
